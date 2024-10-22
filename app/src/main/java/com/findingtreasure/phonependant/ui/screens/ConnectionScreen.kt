@@ -17,6 +17,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.findingtreasure.phonependant.R
 import com.findingtreasure.phonependant.viewmodel.ConnectionViewModel
+import kotlinx.coroutines.delay
 
 @Composable
 fun ConnectionScreen(
@@ -27,6 +28,14 @@ fun ConnectionScreen(
     val port by viewModel.port.collectAsState()
     val isRememberMe by viewModel.isRememberMe.collectAsState()
     val isConnected by viewModel.isConnected.collectAsState()
+
+    // Track when to navigate
+    LaunchedEffect(isConnected) {
+        if (isConnected) {
+            delay(100)
+            onConnect()
+        }
+    }
 
     // Collect error states
     val ipError by viewModel.ipError.collectAsState()
@@ -73,7 +82,6 @@ fun ConnectionScreen(
                         focusedContainerColor = MaterialTheme.colorScheme.surface,
                         unfocusedContainerColor = MaterialTheme.colorScheme.surface,
                         focusedTextColor = MaterialTheme.colorScheme.onSurface,
-                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
                         focusedLabelColor = MaterialTheme.colorScheme.onSurface,
                         cursorColor = MaterialTheme.colorScheme.onSurface,
                         focusedIndicatorColor = Color.Transparent,
@@ -109,7 +117,6 @@ fun ConnectionScreen(
                         focusedContainerColor = MaterialTheme.colorScheme.surface,
                         unfocusedContainerColor = MaterialTheme.colorScheme.surface,
                         focusedTextColor = MaterialTheme.colorScheme.onSurface,
-                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
                         focusedLabelColor = MaterialTheme.colorScheme.onSurface,
                         cursorColor = MaterialTheme.colorScheme.onSurface,
                         focusedIndicatorColor = Color.Transparent,
@@ -157,9 +164,6 @@ fun ConnectionScreen(
             Button(
                 onClick = {
                     viewModel.connect()
-                    if (isConnected) {
-                        onConnect()
-                    }
                 },
                 modifier = Modifier
                     .fillMaxWidth()
