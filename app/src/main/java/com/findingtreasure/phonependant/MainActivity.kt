@@ -11,6 +11,10 @@ import com.findingtreasure.phonependant.ui.screens.PositionListScreen
 import com.findingtreasure.phonependant.ui.theme.PhonePendantTheme
 import com.findingtreasure.phonependant.viewmodel.ConnectionViewModel
 
+/**
+Hello my name is Heeh
+**/
+
 class MainActivity : ComponentActivity() {
 	private lateinit var dataStore: ConnectionDataStore
 
