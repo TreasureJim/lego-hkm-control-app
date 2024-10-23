@@ -12,7 +12,7 @@ import com.findingtreasure.phonependant.ui.theme.PhonePendantTheme
 import com.findingtreasure.phonependant.viewmodel.ConnectionViewModel
 
 /**
-Hello my name is Heeh
+Hello my name is Yeehoo
 **/
 
 class MainActivity : ComponentActivity() {
