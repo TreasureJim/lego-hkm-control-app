@@ -17,7 +17,7 @@ import androidx.compose.ui.unit.dp
 import com.findingtreasure.phonependant.model.Position
 
 @Composable
-fun CoordinateInputScreen(
+fun AccelerometerInputScreen(
     position: Position?,
     onTabSelected: (String, Position) -> Unit,
     onSave: (Position) -> Unit
@@ -31,7 +31,7 @@ fun CoordinateInputScreen(
     ) {
         // Top Tab Row
         TabRow(
-            selectedTabIndex = 1,
+            selectedTabIndex = 2,
             containerColor = MaterialTheme.colorScheme.surface,
             contentColor = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.fillMaxWidth()
@@ -39,10 +39,10 @@ fun CoordinateInputScreen(
             Tab(selected = false, onClick = { onTabSelected("jointRotation/${position?.id}", position!!.copy(name = positionState?.name ?: ""))  }) {
                 Text("Joint", modifier = Modifier.padding(16.dp), style = MaterialTheme.typography.labelSmall)
             }
-            Tab(selected = true, onClick = { /* Stay on Coordinate screen */ }) {
+            Tab(selected = false, onClick = { onTabSelected("coordinateInput/${position?.id}", position!!.copy(name = positionState?.name ?: "")) }) {
                 Text("Coordinate", modifier = Modifier.padding(16.dp), style = MaterialTheme.typography.labelSmall)
             }
-            Tab(selected = false, onClick = { onTabSelected("accelerometerInput/${position?.id}", position!!.copy(name = positionState?.name ?: "")) }) {
+            Tab(selected = true, onClick = { /* Stay on Accelerometer screen */ }) {
                 Text("Accelerometer", modifier = Modifier.padding(16.dp), style = MaterialTheme.typography.labelSmall)
             }
         }
@@ -57,7 +57,7 @@ fun CoordinateInputScreen(
         ) {
             // Title for Coordinate Mode
             Text(
-                text = "Position coordinates",
+                text = "Accelerometer input",
                 style = MaterialTheme.typography.titleSmall,
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.align(Alignment.CenterHorizontally)
@@ -72,27 +72,54 @@ fun CoordinateInputScreen(
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                CoordinateInputFields(
+                CoordinateDisplayFields(
                     label = "X",
                     value = positionState?.x ?: "0",
                     onValueChange = { newX ->
                         positionState = positionState!!.copy(x = newX)
                     }
                 )
-                CoordinateInputFields(
+                CoordinateDisplayFields(
                     label = "Y",
                     value = positionState?.y ?: "0",
                     onValueChange = { newY ->
                         positionState = positionState!!.copy(y = newY)
                     }
                 )
-                CoordinateInputFields(
+                CoordinateDisplayFields(
                     label = "Z",
                     value = positionState?.z ?: "0",
                     onValueChange = { newZ ->
                         positionState = positionState!!.copy(z = newZ)
                     }
                 )
+                CoordinateDisplayFields(
+                    label = "1",
+                    value = positionState?.axis1 ?: "0",
+                    onValueChange = { newZ ->
+                        positionState = positionState!!.copy(z = newZ)
+                    }
+                )
+                CoordinateDisplayFields(
+                    label = "2",
+                    value = positionState?.axis2 ?: "0",
+                    onValueChange = { newZ ->
+                        positionState = positionState!!.copy(z = newZ)
+                    }
+                )
+                CoordinateDisplayFields(
+                    label = "3",
+                    value = positionState?.axis3 ?: "0",
+                    onValueChange = { newZ ->
+                        positionState = positionState!!.copy(z = newZ)
+                    }
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Button(onClick = { /* Handle save button click */ }) {
+                Text("Track")
             }
 
             Spacer(modifier = Modifier.weight(1f))  // Spacer to push content upwards
@@ -153,7 +180,7 @@ fun CoordinateInputScreen(
 }
 
 @Composable
-fun CoordinateInputFields(label: String, value: String, onValueChange: (String) -> Unit) {
+fun CoordinateDisplayFields(label: String, value: String, onValueChange: (String) -> Unit) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center
@@ -176,31 +203,12 @@ fun CoordinateInputFields(label: String, value: String, onValueChange: (String) 
         Spacer(modifier = Modifier.width(8.dp))
 
         // Display coordinate value
-        // Transparent TextField with custom underline
-
-        BasicTextField(
-            value = value,
-            onValueChange = onValueChange,
-            textStyle = MaterialTheme.typography.bodyLarge.copy(color = Color.White),
+        Text(
+            text = value,
+            style = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onBackground),
             modifier = Modifier
                 .width(196.dp)
-                .padding(vertical = 8.dp),
-            cursorBrush = SolidColor(MaterialTheme.colorScheme.surface),
-            decorationBox = { innerTextField ->
-                Column {
-                    innerTextField()
-
-                    Spacer(modifier = Modifier.height(4.dp))
-
-                    // Custom underline
-                    Box(
-                        modifier = Modifier
-                            .width(196.dp)
-                            .height(2.dp)
-                            .background(MaterialTheme.colorScheme.surface)
-                    )
-                }
-            }
+                .padding(vertical = 8.dp)
         )
     }
 }
