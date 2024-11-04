@@ -25,6 +25,7 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import com.findingtreasure.phonependant.ui.screens.AccelerometerInputScreen
 import com.findingtreasure.phonependant.ui.screens.CoordinateInputScreen
 
 class MainActivity : ComponentActivity() {
@@ -127,7 +128,7 @@ fun MainAppNavigation() {
 			)
 		}
 
-		// Joint Rotation Screen
+		// Coordinate Input Screen
 		composable(
 			route = "coordinateInput/{positionId}",
 			arguments = listOf(
@@ -153,6 +154,37 @@ fun MainAppNavigation() {
 					}
 					navController.navigate(screen) {
 						popUpTo("coordinateInput/$positionId") { inclusive = true }
+					}
+				}
+			)
+		}
+
+		// Accelerometer Input Screen
+		composable(
+			route = "accelerometerInput/{positionId}",
+			arguments = listOf(
+				navArgument("positionId") { type = NavType.IntType }
+			)
+		) { backStackEntry ->
+			val positionId = backStackEntry.arguments?.getInt("positionId") ?: 0
+
+			AccelerometerInputScreen (
+				position = positions.find { it.id == positionId },
+				onSave = { updatedPosition ->
+					val index = positions.indexOfFirst { it.id == updatedPosition.id }
+					if (index != -1) {
+						positions[index] = updatedPosition
+					}
+					navController.popBackStack()
+				},
+				onTabSelected = { screen, updatedPosition ->
+					// Update the position in the list
+					val index = positions.indexOfFirst { it.id == updatedPosition.id }
+					if (index != -1) {
+						positions[index] = updatedPosition
+					}
+					navController.navigate(screen) {
+						popUpTo("accelerometerInput/$positionId") { inclusive = true }
 					}
 				}
 			)
