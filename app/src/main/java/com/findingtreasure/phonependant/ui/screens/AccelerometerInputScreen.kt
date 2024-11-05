@@ -3,6 +3,7 @@ package com.findingtreasure.phonependant.ui.screens
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
@@ -74,53 +75,48 @@ fun AccelerometerInputScreen(
             ) {
                 CoordinateDisplayFields(
                     label = "X",
-                    value = positionState?.x ?: "0",
-                    onValueChange = { newX ->
-                        positionState = positionState!!.copy(x = newX)
-                    }
+                    value = positionState?.x ?: "0"
                 )
                 CoordinateDisplayFields(
                     label = "Y",
-                    value = positionState?.y ?: "0",
-                    onValueChange = { newY ->
-                        positionState = positionState!!.copy(y = newY)
-                    }
+                    value = positionState?.y ?: "0"
                 )
                 CoordinateDisplayFields(
                     label = "Z",
-                    value = positionState?.z ?: "0",
-                    onValueChange = { newZ ->
-                        positionState = positionState!!.copy(z = newZ)
-                    }
+                    value = positionState?.z ?: "0"
                 )
                 CoordinateDisplayFields(
                     label = "1",
-                    value = positionState?.axis1 ?: "0",
-                    onValueChange = { newZ ->
-                        positionState = positionState!!.copy(z = newZ)
-                    }
+                    value = positionState?.axis1 ?: "0"
                 )
                 CoordinateDisplayFields(
                     label = "2",
-                    value = positionState?.axis2 ?: "0",
-                    onValueChange = { newZ ->
-                        positionState = positionState!!.copy(z = newZ)
-                    }
+                    value = positionState?.axis2 ?: "0"
                 )
                 CoordinateDisplayFields(
                     label = "3",
-                    value = positionState?.axis3 ?: "0",
-                    onValueChange = { newZ ->
-                        positionState = positionState!!.copy(z = newZ)
-                    }
+                    value = positionState?.axis3 ?: "0"
                 )
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(50.dp))
 
-            Button(onClick = { /* Handle save button click */ }) {
-                Text("Track")
+            Button(
+                onClick = { /* Handle save button click */ },
+                shape = RoundedCornerShape(
+                    topStart = 16.dp,
+                    topEnd = 16.dp,
+                    bottomStart = 16.dp,
+                    bottomEnd = 16.dp
+                ),
+                modifier = Modifier
+                    .width(200.dp)
+                    .height(60.dp)
+            ) {
+                Text("Track", style = MaterialTheme.typography.titleSmall)
             }
+
+
 
             Spacer(modifier = Modifier.weight(1f))  // Spacer to push content upwards
 
@@ -180,7 +176,7 @@ fun AccelerometerInputScreen(
 }
 
 @Composable
-fun CoordinateDisplayFields(label: String, value: String, onValueChange: (String) -> Unit) {
+fun CoordinateDisplayFields(label: String, value: String) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center
