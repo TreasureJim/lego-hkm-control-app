@@ -116,8 +116,6 @@ fun AccelerometerInputScreen(
                 Text("Track", style = MaterialTheme.typography.titleSmall)
             }
 
-
-
             Spacer(modifier = Modifier.weight(1f))  // Spacer to push content upwards
 
             // Position Name Input Field
