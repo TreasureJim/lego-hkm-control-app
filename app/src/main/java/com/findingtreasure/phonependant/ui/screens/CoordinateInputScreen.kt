@@ -15,6 +15,8 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.findingtreasure.phonependant.model.Position
+import com.findingtreasure.phonependant.ui.helper.AxisSlider
+import com.findingtreasure.phonependant.ui.helper.DisplayField
 
 @Composable
 fun CoordinateInputScreen(
@@ -23,6 +25,9 @@ fun CoordinateInputScreen(
     onSave: (Position) -> Unit
 ) {
     var positionState by remember { mutableStateOf(position) }
+    var slider1Value by remember { mutableStateOf(0f) }
+    var slider2Value by remember { mutableStateOf(0f) }
+    var slider3Value by remember { mutableStateOf(0f) }
 
     Column(
         modifier = Modifier
@@ -36,63 +41,107 @@ fun CoordinateInputScreen(
             contentColor = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Tab(selected = false, onClick = { onTabSelected("jointRotation/${position?.id}", position!!.copy(name = positionState?.name ?: ""))  }) {
-                Text("Joint", modifier = Modifier.padding(16.dp), style = MaterialTheme.typography.labelSmall)
+            Tab(
+                selected = false,
+                onClick = {
+                    onTabSelected(
+                        "jointRotation/${position?.id}",
+                        position!!.copy(name = positionState?.name ?: "")
+                    )
+                }) {
+                Text(
+                    "Joint",
+                    modifier = Modifier.padding(16.dp),
+                    style = MaterialTheme.typography.labelSmall
+                )
             }
             Tab(selected = true, onClick = { /* Stay on Coordinate screen */ }) {
-                Text("Coordinate", modifier = Modifier.padding(16.dp), style = MaterialTheme.typography.labelSmall)
+                Text(
+                    "Coordinate",
+                    modifier = Modifier.padding(16.dp),
+                    style = MaterialTheme.typography.labelSmall
+                )
             }
-            Tab(selected = false, onClick = { onTabSelected("accelerometerInput/${position?.id}", position!!.copy(name = positionState?.name ?: "")) }) {
-                Text("Accelerometer", modifier = Modifier.padding(16.dp), style = MaterialTheme.typography.labelSmall)
+            Tab(
+                selected = false,
+                onClick = {
+                    onTabSelected(
+                        "accelerometerInput/${position?.id}",
+                        position!!.copy(name = positionState?.name ?: "")
+                    )
+                }) {
+                Text(
+                    "Accelerometer",
+                    modifier = Modifier.padding(16.dp),
+                    style = MaterialTheme.typography.labelSmall
+                )
             }
         }
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        Column (
+        Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .padding(16.dp)
         ) {
-            // Title for Coordinate Mode
+            // Title for Joint Rotation
             Text(
-                text = "Position coordinates",
+                text = "Coordinate Offset",
                 style = MaterialTheme.typography.titleSmall,
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             )
 
-            Spacer(modifier = Modifier.height(96.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
-            // Center-aligned Coordinate Display
-            Column(
-                modifier = Modifier
-                    .padding(horizontal = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Sliders in a Row
+            Row(
+                Modifier
+                    .padding(8.dp)
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                CoordinateInputFields(
+                AxisSlider(
                     label = "X",
-                    value = positionState?.x ?: "0",
-                    onValueChange = { newX ->
-                        positionState = positionState!!.copy(x = newX)
-                    }
-                )
-                CoordinateInputFields(
+                    sliderValue = slider1Value,
+                    onValueChange = { slider1Value = it })
+                AxisSlider(
                     label = "Y",
-                    value = positionState?.y ?: "0",
-                    onValueChange = { newY ->
-                        positionState = positionState!!.copy(y = newY)
-                    }
-                )
-                CoordinateInputFields(
+                    sliderValue = slider2Value,
+                    onValueChange = { slider2Value = it })
+                AxisSlider(
                     label = "Z",
-                    value = positionState?.z ?: "0",
-                    onValueChange = { newZ ->
-                        positionState = positionState!!.copy(z = newZ)
-                    }
-                )
+                    sliderValue = slider3Value,
+                    onValueChange = { slider3Value = it })
+            }
+
+            // DisplayFields for Joint Values and Coordinates in Two Columns
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                // Column for Joint Values
+                Column(horizontalAlignment = Alignment.Start) {
+                    DisplayField(label = "1", value = position?.axis1 ?: "0.0")
+                    Spacer(modifier = Modifier.height(8.dp))
+                    DisplayField(label = "2", value = position?.axis2 ?: "0.0")
+                    Spacer(modifier = Modifier.height(8.dp))
+                    DisplayField(label = "3", value = position?.axis3 ?: "0.0")
+                }
+
+                // Column for Coordinate Values
+                Column(horizontalAlignment = Alignment.Start) {
+                    DisplayField(label = "X", value = position?.x ?: "0.0")
+                    Spacer(modifier = Modifier.height(8.dp))
+                    DisplayField(label = "Y", value = position?.y ?: "0.0")
+                    Spacer(modifier = Modifier.height(8.dp))
+                    DisplayField(label = "Z", value = position?.z ?: "0.0")
+                }
             }
 
             Spacer(modifier = Modifier.weight(1f))  // Spacer to push content upwards
@@ -149,58 +198,5 @@ fun CoordinateInputScreen(
                 }
             }
         }
-    }
-}
-
-@Composable
-fun CoordinateInputFields(label: String, value: String, onValueChange: (String) -> Unit) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Center
-    ) {
-        // Circular label for X, Y, Z
-        Box(
-            modifier = Modifier
-                .size(32.dp)
-                .background(MaterialTheme.colorScheme.primary, CircleShape),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = label,
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onPrimary,
-                textAlign = TextAlign.Center
-            )
-        }
-
-        Spacer(modifier = Modifier.width(8.dp))
-
-        // Display coordinate value
-        // Transparent TextField with custom underline
-
-        BasicTextField(
-            value = value,
-            onValueChange = onValueChange,
-            textStyle = MaterialTheme.typography.bodyLarge.copy(color = Color.White),
-            modifier = Modifier
-                .width(196.dp)
-                .padding(vertical = 8.dp),
-            cursorBrush = SolidColor(MaterialTheme.colorScheme.surface),
-            decorationBox = { innerTextField ->
-                Column {
-                    innerTextField()
-
-                    Spacer(modifier = Modifier.height(4.dp))
-
-                    // Custom underline
-                    Box(
-                        modifier = Modifier
-                            .width(196.dp)
-                            .height(2.dp)
-                            .background(MaterialTheme.colorScheme.surface)
-                    )
-                }
-            }
-        )
     }
 }
