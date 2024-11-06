@@ -1,3 +1,5 @@
+package com.findingtreasure.comms
+
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
@@ -48,10 +50,9 @@ class ProtocolHandler {
     }
 
     private fun decodeRobotStatus(data: ByteArray): RobotStatus? {
-        if (data.size != 65 || data[0] != 3.toByte()) return null
+        if (data.size != 42) return null
 
-        val motionId = data.sliceArray(1..16)
-        val buffer = ByteBuffer.wrap(data, 17, 48).order(ByteOrder.BIG_ENDIAN)
+        val buffer = ByteBuffer.wrap(data, 0, 42).order(ByteOrder.BIG_ENDIAN)
 
         val x = buffer.double
         val y = buffer.double
@@ -61,6 +62,6 @@ class ProtocolHandler {
         val j3 = buffer.double
         val j4 = buffer.double
 
-        return RobotStatus(motionId, x, y, z, j1, j2, j3, j4)
+        return RobotStatus(x, y, z, j1, j2, j3, j4)
     }
 }

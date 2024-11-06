@@ -22,14 +22,11 @@ import com.findingtreasure.phonependant.model.Position
 
 @Composable
 fun JointRotationScreen(
-    position: Position?,
-    onTabSelected: (String, Position) -> Unit,
     onSave: (Position) -> Unit
 ) {
     var slider1Value by remember { mutableStateOf(0f) }
     var slider2Value by remember { mutableStateOf(0f) }
     var slider3Value by remember { mutableStateOf(0f) }
-    var positionName by remember { mutableStateOf(position?.name ?: "") }
 
     // Main container
     Column(

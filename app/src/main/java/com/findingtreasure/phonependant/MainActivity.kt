@@ -67,35 +67,35 @@ fun MainAppNavigation() {
 			)
 		}
 
-		// Position List Screen
-		composable("positionList") {
-			PositionListScreen(
-				positionList = positions,
-				onEditPosition = { position ->
-					navController.navigate("jointRotation/${position.id}")
-				},
-				onAddNewPosition = {
-					val newPosition = Position(
-						id = positions.size + 1,
-						name = "Position ${positions.size + 1}",
-						x = "0",
-						y = "0",
-						z = "0",
-						axis1 = "0",
-						axis2 = "0",
-						axis3 = "0"
-					)
-					positions.add(newPosition)
-					navController.navigate("jointRotation/${newPosition.id}")
-				},
-				onLogout = {
-					scope.launch { viewModel.logout() }
-					navController.navigate("connection") {
-						popUpTo("connection") { inclusive = true }
-					}
-				}
-			)
-		}
+//		// Position List Screen
+//		composable("positionList") {
+//			PositionListScreen(
+//				positionList = positions,
+//				onEditPosition = { position ->
+//					navController.navigate("jointRotation/${position.id}")
+//				},
+//				onAddNewPosition = {
+//					val newPosition = Position(
+//						id = positions.size + 1,
+//						name = "Position ${positions.size + 1}",
+//						x = "0",
+//						y = "0",
+//						z = "0",
+//						axis1 = "0",
+//						axis2 = "0",
+//						axis3 = "0"
+//					)
+//					positions.add(newPosition)
+//					navController.navigate("jointRotation/${newPosition.id}")
+//				},
+//				onLogout = {
+//					scope.launch { viewModel.logout() }
+//					navController.navigate("connection") {
+//						popUpTo("connection") { inclusive = true }
+//					}
+//				}
+//			)
+//		}
 
 		// Joint Rotation Screen
 		composable(
@@ -107,14 +107,6 @@ fun MainAppNavigation() {
 			val positionId = backStackEntry.arguments?.getInt("positionId") ?: 0
 
 			JointRotationScreen(
-				position = positions.find { it.id == positionId },
-				onSave = { updatedPosition ->
-					val index = positions.indexOfFirst { it.id == updatedPosition.id }
-					if (index != -1) {
-						positions[index] = updatedPosition
-					}
-					navController.popBackStack()
-				},
 				onTabSelected = { screen, updatedPosition ->
 					// Update the position in the list
 					val index = positions.indexOfFirst { it.id == updatedPosition.id }
@@ -128,66 +120,67 @@ fun MainAppNavigation() {
 			)
 		}
 
-		// Coordinate Input Screen
-		composable(
-			route = "coordinateInput/{positionId}",
-			arguments = listOf(
-				navArgument("positionId") { type = NavType.IntType }
-			)
-		) { backStackEntry ->
-			val positionId = backStackEntry.arguments?.getInt("positionId") ?: 0
+//		// Coordinate Input Screen
+//		composable(
+//			route = "coordinateInput/{positionId}",
+//			arguments = listOf(
+//				navArgument("positionId") { type = NavType.IntType }
+//			)
+//		) { backStackEntry ->
+//			val positionId = backStackEntry.arguments?.getInt("positionId") ?: 0
+//
+//			CoordinateInputScreen (
+//				position = positions.find { it.id == positionId },
+//				onSave = { updatedPosition ->
+//					val index = positions.indexOfFirst { it.id == updatedPosition.id }
+//					if (index != -1) {
+//						positions[index] = updatedPosition
+//					}
+//					navController.popBackStack()
+//				},
+//				onTabSelected = { screen, updatedPosition ->
+//					// Update the position in the list
+//					val index = positions.indexOfFirst { it.id == updatedPosition.id }
+//					if (index != -1) {
+//						positions[index] = updatedPosition
+//					}
+//					navController.navigate(screen) {
+//						popUpTo("coordinateInput/$positionId") { inclusive = true }
+//					}
+//				}
+//			)
+//		}
+//
+//		// Accelerometer Input Screen
+//		composable(
+//			route = "accelerometerInput/{positionId}",
+//			arguments = listOf(
+//				navArgument("positionId") { type = NavType.IntType }
+//			)
+//		) { backStackEntry ->
+//			val positionId = backStackEntry.arguments?.getInt("positionId") ?: 0
+//
+//			AccelerometerInputScreen (
+//				position = positions.find { it.id == positionId },
+//				onSave = { updatedPosition ->
+//					val index = positions.indexOfFirst { it.id == updatedPosition.id }
+//					if (index != -1) {
+//						positions[index] = updatedPosition
+//					}
+//					navController.popBackStack()
+//				},
+//				onTabSelected = { screen, updatedPosition ->
+//					// Update the position in the list
+//					val index = positions.indexOfFirst { it.id == updatedPosition.id }
+//					if (index != -1) {
+//						positions[index] = updatedPosition
+//					}
+//					navController.navigate(screen) {
+//						popUpTo("accelerometerInput/$positionId") { inclusive = true }
+//					}
+//				}
+//			)
+//		}
 
-			CoordinateInputScreen (
-				position = positions.find { it.id == positionId },
-				onSave = { updatedPosition ->
-					val index = positions.indexOfFirst { it.id == updatedPosition.id }
-					if (index != -1) {
-						positions[index] = updatedPosition
-					}
-					navController.popBackStack()
-				},
-				onTabSelected = { screen, updatedPosition ->
-					// Update the position in the list
-					val index = positions.indexOfFirst { it.id == updatedPosition.id }
-					if (index != -1) {
-						positions[index] = updatedPosition
-					}
-					navController.navigate(screen) {
-						popUpTo("coordinateInput/$positionId") { inclusive = true }
-					}
-				}
-			)
-		}
-
-		// Accelerometer Input Screen
-		composable(
-			route = "accelerometerInput/{positionId}",
-			arguments = listOf(
-				navArgument("positionId") { type = NavType.IntType }
-			)
-		) { backStackEntry ->
-			val positionId = backStackEntry.arguments?.getInt("positionId") ?: 0
-
-			AccelerometerInputScreen (
-				position = positions.find { it.id == positionId },
-				onSave = { updatedPosition ->
-					val index = positions.indexOfFirst { it.id == updatedPosition.id }
-					if (index != -1) {
-						positions[index] = updatedPosition
-					}
-					navController.popBackStack()
-				},
-				onTabSelected = { screen, updatedPosition ->
-					// Update the position in the list
-					val index = positions.indexOfFirst { it.id == updatedPosition.id }
-					if (index != -1) {
-						positions[index] = updatedPosition
-					}
-					navController.navigate(screen) {
-						popUpTo("accelerometerInput/$positionId") { inclusive = true }
-					}
-				}
-			)
-		}
 	}
 }
