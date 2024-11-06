@@ -5,7 +5,15 @@ using Avon
 include("./gen/motion_types.jlt")
 using .Motion_types
 
-function app_decoder(reader::TCPReader, robot_encoder::Encoder)
+function receive_bytes(r::TCPReader, nbr_bytes::Int64)::Array{UInt8, 1}
+    var data = read(r.socket, nbr_bytes)
+    if length(data) == 0
+        error("Client disconnected")
+    end
+    data
+end
+
+function app_decoder(reader::TCPReader, robot_encoder::Encoder{TCPWriter})
 	while true
 		var s_id = read(reader)
 
@@ -14,9 +22,14 @@ function app_decoder(reader::TCPReader, robot_encoder::Encoder)
 			# Sig: `<s_id: 1><motion_id: 16><x: 8><y: 8><z: 8><j1: 8><j2: 8><j3: 8><j4: 8>`
 			# Length: 1 + 
 
-			var bytes = receive_bytes(reader, 16 + 8 * 7)
-			var floats = reinterpret(Float64, bytes[17:])
-			var jog = MoveJog(bytes[:16], floats[1], floats[2], floats[3], floats[4], floats[5], floats[6], floats[7])
+			var len = 16 + 8 * 7
+			# for i 0:7
+			var bytes = receive_bytes(reader, len)
+			var floats = zeros(Float64, 7)
+			for i = 1:7
+				floats[i] = reinterpret(bytes[17 + (i - 1) * 8:17 + i * 8], Float64)
+			end
+			var jog = MoveJog(bytes[1:16], (tuple(UInt32(16))), floats[1], floats[2], floats[3], floats[4], floats[5], floats[6], floats[7])
 			encode(robot_encoder, jog)
 		elseif (s_id == 2)
 			# RobotRequestStatus
@@ -31,14 +44,22 @@ function app_decoder(reader::TCPReader, robot_encoder::Encoder)
 	end
 end
 
+function app_send_motionid(writer::TCPWriter, id::MotionId)
+	write(writer, UInt8(0))
+end
+
+function app_send_robotstatus(writer::TCPWriter, id::RobotStatus)
+
+end
+
 struct AppServerInfo
 	server::TCPServer
 	app::TCPSocket
-	writer: TCPWriter
+	writer::TCPWriter
 	dec_task::Task
 end
 
-function app_start_server(port::UInt16, robot_encoder::Encoder)::AppServerInfo
+function app_start_server(port::UInt16, robot_encoder::Encoder{TCPWriter})::AppServerInfo
 	var server = listen("0.0.0.0", port, reuseaddr = true)
 	print("Listening for app on ")
 	println(port)
@@ -49,17 +70,17 @@ function app_start_server(port::UInt16, robot_encoder::Encoder)::AppServerInfo
 	var writer = TCPWriter(socket_app)
 	var reader = TCPReader(socket_app)
 
-	var dec_task = schedule(Task("app decoder", () -> app_decoder(dec, robot_encoder)))
+	var dec_task = schedule(Task("app decoder", () -> app_decoder(reader, robot_encoder)))
 
 	AppServerInfo(server, socket_app, writer, dec_task)
 end
-export start_server
+export app_start_server
 
 function app_stop_server(server::AppServerInfo)
 	println("Closing app server sockets")
-	close(server.robot)
+	close(server.app)
 	close(server.server)
 end
-export stop_server
+export app_stop_server
 
 end

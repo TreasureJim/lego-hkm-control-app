@@ -47,7 +47,7 @@ function robot_decoder(dec::Decoder)
 	end
 end
 
-struct RobotRobotServerInfo
+struct RobotServerInfo
 	server::TCPServer
 	robot::TCPSocket
 	enc::Encoder
