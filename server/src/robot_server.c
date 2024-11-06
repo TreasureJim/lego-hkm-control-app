@@ -5,6 +5,7 @@
 #include "chan/encoder.h"
 #include "chan/fd_reader.h"
 #include "chan/fd_writer.h"
+#include "global.h"
 #include "motion_types.h"
 
 void unknown_type_error_func(uint8_t *sig, uint32_t sig_len, void *ctx) {
@@ -28,16 +29,16 @@ void cleanup_juliet_comms() {
 }
 
 void motionid_callbck_func(struct motionid *m, void *ctx) {
-	// TODO: Send to app
+	app_send_motionid(m);
 	free(m);
 }
 
 void robotstatus_callbck_func(struct robotstatus *m, void *ctx) {
-	// TODO: Send to app
+	app_send_robotstatus(m);
 	free(m);
 }
 
-void robot_comms(int robot_socket) {
+void robot_decode(int robot_socket) {
 	socket_fd = robot_socket;
 
 	struct chan_writer* robot_writer = fd_writer_new(robot_socket);
@@ -55,9 +56,8 @@ void robot_comms(int robot_socket) {
 
 	// decode
 	int status;
-	/* while ((status = chan_decode(decoder)) == 0)
-		; */
-	while(true) chan_decode(decoder);
+	while ((status = chan_decode(decoder)) == 0)
+		;
 
 	cleanup_juliet_comms();
 	printf("Received non-zero status from chan: %d.\n", status);

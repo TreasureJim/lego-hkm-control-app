@@ -2,6 +2,7 @@ add_subdirectory(chan-gen-types)
 
 set(SOURCE_FILES
     main.c
+    server.c
     robot_server.c
     app_server.c
 )

@@ -1,5 +1,5 @@
-#include "motion_types.h"
 #include "global.h"
+#include "motion_types.h"
 #include <arpa/inet.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -30,29 +30,31 @@ ssize_t receive_message(int sockfd, uint8_t* buffer, size_t length) {
 }
 
 int app_decode(int app_fd) {
-  char sig_id;
-  recv(app_fd, &sig_id, 1, 0);
+  while (true) {
+	char sig_id;
+	recv(app_fd, &sig_id, 1, 0);
 
-  switch (sig_id) {
-  case S_ID_MOVEJOG:
-	char* buf = malloc(sizeof(struct movejog));
-	if (receive_message(app_fd, buf, sizeof(struct movejog)) < 0) {
-	  return -1;
+	switch (sig_id) {
+	case S_ID_MOVEJOG:
+	  char* buf = malloc(sizeof(struct movejog));
+	  if (receive_message(app_fd, buf, sizeof(struct movejog)) < 0) {
+		return -1;
+	  }
+
+	  robot_send_movejog((struct movejog*)buf);
+
+	  free(buf);
+	  break;
+
+	case S_ID_ROBOTREQUESTSTATUS:
+	  struct robotrequeststatus rqs;
+	  robot_send_robotrequeststatus((struct robotrequeststatus*)&rqs);
+	  break;
+
+	default:
+	  fprintf(stderr, "[APP ERROR] Decoded an unknown sig_id: %d\n", sig_id);
+	  break;
 	}
-
-	robot_send_movejog((struct movejog*)buf);
-
-	free(buf);
-	break;
-
-  case S_ID_ROBOTREQUESTSTATUS:
-	struct robotrequeststatus rqs;
-	robot_send_robotrequeststatus((struct robotrequeststatus*)&rqs);
-	break;
-
-  default:
-	fprintf(stderr, "[APP ERROR] Decoded an unknown sig_id: %d\n", sig_id);
-	break;
   }
 }
 

@@ -1,93 +1,57 @@
-#include "motion_types.h"
 #include <arpa/inet.h>
+#include <pthread.h>
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 
+#include "global.h"
+
 #define ROBOT_PORT 3001
 #define APP_PORT 3002
 
+typedef struct {
+  int app_fd;
+} ThreadArgs;
+
+void* app_decode_thread(void* args) {
+  ThreadArgs* thread_args = (ThreadArgs*)args;
+  int result = app_decode(thread_args->app_fd);
+
+  printf("app_decode returned: %d\n", result);
+
+  // Free the allocated memory for arguments
+  free(thread_args);
+
+  // Return result as the thread's exit status
+  return NULL;
+}
+
+// Function to start the app_decode thread
+pthread_t start_decode_thread(int app_fd) {
+  pthread_t thread_id;
+  ThreadArgs* args = malloc(sizeof(ThreadArgs));
+
+  if (args == NULL) {
+	perror("Failed to allocate memory for thread arguments");
+	exit(EXIT_FAILURE);
+  }
+
+  args->app_fd = app_fd;
+
+  // Create the thread
+  if (pthread_create(&thread_id, NULL, app_decode_thread, args) != 0) {
+	perror("Failed to create thread");
+	free(args);
+	exit(EXIT_FAILURE);
+  }
+
+  return thread_id;
+}
+
 int robot_server_fd, robot_client_fd;
 int app_server_fd, app_client_fd;
-
-int start_server(int port) {
-  struct sockaddr_in server_addr;
-
-  // Create a socket
-  int server_socket = socket(AF_INET, SOCK_STREAM, 0);
-  if (server_socket < 0) {
-	perror("Socket creation failed");
-	return -1;
-  }
-
-  // Set socket options to allow reuse of address
-  int opt = 1;
-  if (setsockopt(server_socket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0) {
-	perror("Failed to set socket options");
-	close(server_socket);
-	return -1;
-  }
-
-  // Bind the socket to the specified port
-  memset(&server_addr, 0, sizeof(server_addr));
-  server_addr.sin_family = AF_INET;
-  server_addr.sin_addr.s_addr = INADDR_ANY;
-  server_addr.sin_port = htons(port);
-
-  if (bind(server_socket, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
-	perror("Bind failed");
-	close(server_socket);
-	return -1;
-  }
-
-  // Start listening for incoming connections
-  if (listen(server_socket, 1) < 0) {
-	perror("Listen failed");
-	close(server_socket);
-	return -1;
-  }
-
-  return server_socket;
-}
-
-int listen_server(int server_socket) {
-  // Accept incoming connections (for demonstration purposes)
-  struct sockaddr_in client_addr;
-  socklen_t client_addr_len = sizeof(client_addr);
-  int client_socket = accept(server_socket, (struct sockaddr*)&client_addr, &client_addr_len);
-
-  if (client_socket < 0) {
-	perror("Failed to accept connection");
-	return -1;
-  }
-
-  printf("Accepted connection from %s:%d\n", inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port));
-
-  return client_socket;
-}
-
-// Function to gracefully shut down the server
-void shutdown_server() {
-  if (robot_client_fd >= 0) {
-	close(robot_server_fd);
-	printf("Robot client shut down gracefully\n");
-  }
-  if (robot_server_fd >= 0) {
-	close(robot_server_fd);
-	printf("Robot server shut down gracefully\n");
-  }
-
-  if (app_client_fd >= 0) {
-	close(app_server_fd);
-	printf("app client shut down gracefully\n");
-  }
-  if (app_server_fd >= 0) {
-	close(app_server_fd);
-	printf("app server shut down gracefully\n");
-  }
-}
 
 // Signal handler to catch CTRL+C and trigger shutdown
 void handle_sigint(int sig) {
@@ -121,7 +85,10 @@ int main() {
   }
   printf("Connected to app.\n");
 
- 	// TODO: Create thread and run both decode functions
+  pthread_t thread_id = start_decode_thread(app_client_fd);
+  robot_decode(robot_client_fd);
+
+  pthread_join(thread_id, NULL);
 
   // Shutdown the server if it exits the loop
   shutdown_server();
