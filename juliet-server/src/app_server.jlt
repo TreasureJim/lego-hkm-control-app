@@ -1,0 +1,65 @@
+module AppServer
+
+using Sockets
+using Avon
+include("./gen/motion_types.jlt")
+using .Motion_types
+
+function app_decoder(reader::TCPReader, robot_encoder::Encoder)
+	while true
+		var s_id = read(reader)
+
+		if (s_id == 1)
+			# MoveJog
+			# Sig: `<s_id: 1><motion_id: 16><x: 8><y: 8><z: 8><j1: 8><j2: 8><j3: 8><j4: 8>`
+			# Length: 1 + 
+
+			var bytes = receive_bytes(reader, 16 + 8 * 7)
+			var floats = reinterpret(Float64, bytes[17:])
+			var jog = MoveJog(bytes[:16], floats[1], floats[2], floats[3], floats[4], floats[5], floats[6], floats[7])
+			encode(robot_encoder, jog)
+		elseif (s_id == 2)
+			# RobotRequestStatus
+			# Sig: `<s_id: 1>`
+			var rq_stat = RobotRequestStatus()
+			encode(robot_encoder, rq_stat)
+		else 
+			print("Received unknown s_id from app: ")
+			println(s_id)
+			continue
+		end
+	end
+end
+
+struct AppServerInfo
+	server::TCPServer
+	app::TCPSocket
+	writer: TCPWriter
+	dec_task::Task
+end
+
+function app_start_server(port::UInt16, robot_encoder::Encoder)::AppServerInfo
+	var server = listen("0.0.0.0", port, reuseaddr = true)
+	print("Listening for app on ")
+	println(port)
+
+	var socket_app::TCPSocket = accept(server)
+	println("Connected to app")
+
+	var writer = TCPWriter(socket_app)
+	var reader = TCPReader(socket_app)
+
+	var dec_task = schedule(Task("app decoder", () -> app_decoder(dec, robot_encoder)))
+
+	AppServerInfo(server, socket_app, writer, dec_task)
+end
+export start_server
+
+function app_stop_server(server::AppServerInfo)
+	println("Closing app server sockets")
+	close(server.robot)
+	close(server.server)
+end
+export stop_server
+
+end
