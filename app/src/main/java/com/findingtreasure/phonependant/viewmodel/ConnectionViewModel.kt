@@ -1,11 +1,14 @@
 package com.findingtreasure.phonependant.viewmodel
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.findingtreasure.phonependant.datastore.ConnectionDataStore
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 
-class ConnectionViewModel : ViewModel() {
-    // State for IP and Port
+class ConnectionViewModel(private val dataStore: ConnectionDataStore) : ViewModel() {
     private val _ip = MutableStateFlow("")
     val ip: StateFlow<String> = _ip
 
@@ -18,23 +21,34 @@ class ConnectionViewModel : ViewModel() {
     private val _isConnected = MutableStateFlow(false)
     val isConnected: StateFlow<Boolean> = _isConnected
 
-    // Error states for IP and Port validation
     private val _ipError = MutableStateFlow<String?>(null)
     val ipError: StateFlow<String?> = _ipError
 
     private val _portError = MutableStateFlow<String?>(null)
     val portError: StateFlow<String?> = _portError
 
-    // Event to handle IP change
-    fun onIpChanged(newIp: String) {
-        _ip.value = newIp
-        _ipError.value = null  // Reset the error when user types
+    // Initialize to check if "Remember Me" is saved
+    init {
+        viewModelScope.launch {
+            _isRememberMe.value = dataStore.isRememberMe.first()
+            _ip.value = dataStore.ip.first() ?: ""
+            _port.value = dataStore.port.first() ?: ""
+            if (_isRememberMe.value && _ip.value.isNotEmpty() && _port.value.isNotEmpty()) {
+                _isConnected.value = true // Automatically connect if remembered
+            }
+        }
     }
 
-    // Event to handle Port change
+    // Handle IP changes
+    fun onIpChanged(newIp: String) {
+        _ip.value = newIp
+        _ipError.value = null
+    }
+
+    // Handle Port changes
     fun onPortChanged(newPort: String) {
         _port.value = newPort
-        _portError.value = null  // Reset the error when user types
+        _portError.value = null
     }
 
     // Toggle Remember Me
@@ -42,29 +56,37 @@ class ConnectionViewModel : ViewModel() {
         _isRememberMe.value = isChecked
     }
 
-    // Validate and attempt connection
+    // Connect and save preferences if "Remember Me" is checked
     fun connect() {
         val isIpValid = validateIp(_ip.value)
         val isPortValid = validatePort(_port.value)
 
         if (isIpValid && isPortValid) {
-            _isConnected.value = true
-            // Additional connection logic can go here
+            viewModelScope.launch {
+                _isConnected.value = true
+                if (_isRememberMe.value) {
+                    dataStore.savePreferences(_isRememberMe.value, _ip.value, _port.value)
+                }
+            }
         } else {
-            // Set the error messages based on validation
             if (!isIpValid) _ipError.value = "Invalid IP Address"
             if (!isPortValid) _portError.value = "Invalid Port"
+        }
+    }
+
+    // Log out functionality (clear preferences)
+    fun logout() {
+        viewModelScope.launch {
+            dataStore.clearPreferences()
             _isConnected.value = false
         }
     }
 
-    // Simple IP validation (you can extend this based on your requirements)
     private fun validateIp(ip: String): Boolean {
         val ipRegex = Regex("^\\d{1,3}(\\.\\d{1,3}){3}\$")
         return ipRegex.matches(ip)
     }
 
-    // Simple port validation (valid ports range from 1 to 65535)
     private fun validatePort(port: String): Boolean {
         return port.toIntOrNull()?.let { it in 1..65535 } ?: false
     }
