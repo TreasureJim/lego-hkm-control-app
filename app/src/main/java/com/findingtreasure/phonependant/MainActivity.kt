@@ -75,15 +75,16 @@ fun MainAppNavigation() {
 					navController.navigate("jointRotation/${position.id}")
 				},
 				onAddNewPosition = {
+					/* TO IMPLEMENT: should copy current position of robot */
 					val newPosition = Position(
 						id = positions.size + 1,
 						name = "Position ${positions.size + 1}",
-						x = "0",
-						y = "0",
-						z = "0",
-						axis1 = "0",
-						axis2 = "0",
-						axis3 = "0"
+						x = 0.0,
+						y = 0.0,
+						z = 0.0,
+						axis1 = 0.0,
+						axis2 = 0.0,
+						axis3 = 0.0
 					)
 					positions.add(newPosition)
 					navController.navigate("jointRotation/${newPosition.id}")

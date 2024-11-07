@@ -12,9 +12,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.findingtreasure.phonependant.model.Position
 import com.findingtreasure.phonependant.ui.helper.DisplayField
 import com.findingtreasure.phonependant.ui.helper.AxisSlider
+import com.findingtreasure.phonependant.viewmodel.JoggingViewModel
+import com.findingtreasure.phonependant.viewmodel.JoggingViewModelFactory
 
 @Composable
 fun JointRotationScreen(
@@ -22,10 +25,17 @@ fun JointRotationScreen(
     onTabSelected: (String, Position) -> Unit,
     onSave: (Position) -> Unit
 ) {
-    var slider1Value by remember { mutableStateOf(0f) }
-    var slider2Value by remember { mutableStateOf(0f) }
-    var slider3Value by remember { mutableStateOf(0f) }
-    var positionState by remember { mutableStateOf(position) }
+    // Pass position and ProtocolHandler to the factory
+    val viewModel: JoggingViewModel = viewModel(
+        factory = JoggingViewModelFactory (
+            initialPosition = position ?: Position(0, "", 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
+        )
+    )
+
+    val positionState by viewModel.positionState.collectAsState()
+    val slider1Value by viewModel.slider1Value.collectAsState()
+    val slider2Value by viewModel.slider2Value.collectAsState()
+    val slider3Value by viewModel.slider3Value.collectAsState()
 
     // Main container
     Column(
@@ -43,10 +53,10 @@ fun JointRotationScreen(
             Tab(selected = true, onClick = { /* Stay on Joint screen */ }) {
                 Text("Joint", modifier = Modifier.padding(16.dp), style = MaterialTheme.typography.labelSmall)
             }
-            Tab(selected = false, onClick = { onTabSelected("coordinateInput/${position?.id}", position!!.copy(name = positionState?.name ?: "")) }) {
+            Tab(selected = false, onClick = { onTabSelected("coordinateInput/${positionState.id}", positionState)}) {
                 Text("Coordinate", modifier = Modifier.padding(16.dp), style = MaterialTheme.typography.labelSmall)
             }
-            Tab(selected = false, onClick = { onTabSelected("accelerometerInput/${position?.id}", position!!.copy(name = positionState?.name ?: "")) }) {
+            Tab(selected = false, onClick = { onTabSelected("accelerometerInput/${positionState.id}", positionState) }) {
                 Text("Accelerometer", modifier = Modifier.padding(16.dp), style = MaterialTheme.typography.labelSmall)
             }
         }
@@ -77,9 +87,9 @@ fun JointRotationScreen(
                     .fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                AxisSlider(label = "1", sliderValue = slider1Value, onValueChange = { slider1Value = it })
-                AxisSlider(label = "2", sliderValue = slider2Value, onValueChange = { slider2Value = it })
-                AxisSlider(label = "3", sliderValue = slider3Value, onValueChange = { slider3Value = it })
+                AxisSlider(label = "1", sliderValue = slider1Value, onValueChange = { viewModel.setSliderValue("1", it) })
+                AxisSlider(label = "2", sliderValue = slider2Value, onValueChange = { viewModel.setSliderValue("2", it) })
+                AxisSlider(label = "3", sliderValue = slider3Value, onValueChange = { viewModel.setSliderValue("3", it) })
             }
 
             // DisplayFields for Joint Values and Coordinates in Two Columns
@@ -91,20 +101,20 @@ fun JointRotationScreen(
             ) {
                 // Column for Joint Values
                 Column(horizontalAlignment = Alignment.Start) {
-                    DisplayField(label = "1", value = position?.axis1 ?: "0.0")
+                    DisplayField(label = "1", value = positionState.axis1.toString())
                     Spacer(modifier = Modifier.height(8.dp))
-                    DisplayField(label = "2", value = position?.axis2 ?: "0.0")
+                    DisplayField(label = "2", value = positionState.axis2.toString())
                     Spacer(modifier = Modifier.height(8.dp))
-                    DisplayField(label = "3", value = position?.axis3 ?: "0.0")
+                    DisplayField(label = "3", value = positionState.axis3.toString())
                 }
 
                 // Column for Coordinate Values
                 Column(horizontalAlignment = Alignment.Start) {
-                    DisplayField(label = "X", value = position?.x ?: "0.0")
+                    DisplayField(label = "X", value = positionState.x.toString())
                     Spacer(modifier = Modifier.height(8.dp))
-                    DisplayField(label = "Y", value = position?.y ?: "0.0")
+                    DisplayField(label = "Y", value = positionState.y.toString())
                     Spacer(modifier = Modifier.height(8.dp))
-                    DisplayField(label = "Z", value = position?.z ?: "0.0")
+                    DisplayField(label = "Z", value = positionState.z.toString())
                 }
             }
 
@@ -120,9 +130,9 @@ fun JointRotationScreen(
             ) {
                 // Transparent TextField with custom underline
                 BasicTextField(
-                    value = positionState?.name ?: "",
+                    value = positionState.name,
                     onValueChange = { newName ->
-                        positionState = positionState!!.copy(name = newName)
+                        viewModel.setName(newName)
                     },
                     textStyle = MaterialTheme.typography.bodyLarge.copy(color = Color.White),
                     modifier = Modifier
@@ -151,7 +161,7 @@ fun JointRotationScreen(
 
                 // Edit Icon Button
                 IconButton(
-                    onClick = { onSave(positionState!!) },
+                    onClick = { onSave(positionState) },
                     modifier = Modifier.size(48.dp)
                 ) {
                     Icon(
