@@ -18,15 +18,18 @@ import androidx.compose.ui.layout.layout
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
+import com.findingtreasure.phonependant.SliderSnapRelease
 import com.findingtreasure.phonependant.model.Position
+import com.findingtreasure.phonependant.ui.components.RobotStatusDisplay
 
 @Composable
 fun JointRotationScreen(
-    onSave: (Position) -> Unit
+    position: Position?,
+    onSavePosition: () -> Unit,
 ) {
-    var slider1Value by remember { mutableStateOf(0f) }
-    var slider2Value by remember { mutableStateOf(0f) }
-    var slider3Value by remember { mutableStateOf(0f) }
+    val slider1Value = remember { mutableStateOf(0f) }
+    val slider2Value = remember { mutableStateOf(0f) }
+    val slider3Value = remember { mutableStateOf(0f) }
 
     // Main container
     Column(
@@ -42,19 +45,23 @@ fun JointRotationScreen(
             modifier = Modifier.fillMaxWidth()
         ) {
             Tab(selected = true, onClick = { /* Stay on Joint screen */ }) {
-                Text("Joint", modifier = Modifier.padding(16.dp), style = MaterialTheme.typography.labelSmall)
+                Text(
+                    "Joint",
+                    modifier = Modifier.padding(16.dp),
+                    style = MaterialTheme.typography.labelSmall
+                )
             }
-            Tab(selected = false, onClick = { onTabSelected("coordinateInput/${position?.id}", position!!.copy(name = positionName)) }) {
-                Text("Coordinate", modifier = Modifier.padding(16.dp), style = MaterialTheme.typography.labelSmall)
-            }
-            Tab(selected = false, onClick = { onTabSelected("accelerometerInput/${position?.id}", position!!.copy(name = positionName)) }) {
-                Text("Accelerometer", modifier = Modifier.padding(16.dp), style = MaterialTheme.typography.labelSmall)
-            }
+//            Tab(selected = false, onClick = { onTabSelected("coordinateInput/${position?.id}", position!!.copy(name = positionName)) }) {
+//                Text("Coordinate", modifier = Modifier.padding(16.dp), style = MaterialTheme.typography.labelSmall)
+//            }
+//            Tab(selected = false, onClick = { onTabSelected("accelerometerInput/${position?.id}", position!!.copy(name = positionName)) }) {
+//                Text("Accelerometer", modifier = Modifier.padding(16.dp), style = MaterialTheme.typography.labelSmall)
+//            }
         }
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        Column (
+        Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(16.dp)
@@ -86,68 +93,22 @@ fun JointRotationScreen(
                     .fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                AxisSlider(label = "1", sliderValue = slider1Value, onValueChange = { slider1Value = it })
-                AxisSlider(label = "2", sliderValue = slider2Value, onValueChange = { slider2Value = it })
-                AxisSlider(label = "3", sliderValue = slider3Value, onValueChange = { slider3Value = it })
+                AxisSlider("1", slider1Value)
+                AxisSlider("2", slider2Value)
+                AxisSlider("3", slider3Value)
             }
 
             Spacer(modifier = Modifier.weight(1f))
 
-            // Position Name Input Field
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(24.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
-            ) {
-                // Transparent TextField with custom underline
-                BasicTextField(
-                    value = positionName,
-                    onValueChange = { positionName = it },
-                    textStyle = MaterialTheme.typography.bodyLarge.copy(color = Color.White),
-                    modifier = Modifier
-                        .weight(1f)
-                        .background(Color.Transparent)
-                        .padding(vertical = 8.dp),
-                    cursorBrush = SolidColor(MaterialTheme.colorScheme.surface),
-                    decorationBox = { innerTextField ->
-                        Column {
-                            innerTextField()
-
-                            Spacer(modifier = Modifier.height(4.dp))
-
-                            // Custom underline
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(2.dp)
-                                    .background(MaterialTheme.colorScheme.surface)
-                            )
-                        }
-                    }
-                )
-
-                Spacer(modifier = Modifier.width(8.dp))
-
-                // Edit Icon Button
-                IconButton(
-                    onClick = { onSave(position!!.copy(name = positionName)) },
-                    modifier = Modifier.size(48.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Edit,
-                        contentDescription = "Edit",
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                }
+            if (position != null) {
+                RobotStatusDisplay(position, onSavePosition)
             }
         }
     }
 }
 
 @Composable
-fun AxisSlider(label: String, sliderValue: Float, onValueChange: (Float) -> Unit) {
+fun AxisSlider(label: String, sliderValue: MutableState<Float>) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -171,35 +132,6 @@ fun AxisSlider(label: String, sliderValue: Float, onValueChange: (Float) -> Unit
         Spacer(modifier = Modifier.height(32.dp))
 
         // Slider
-        Slider(
-            value = sliderValue,
-            onValueChange = onValueChange,
-            Modifier
-                .graphicsLayer {
-                    rotationZ = 270f
-                    transformOrigin = TransformOrigin(0f, 0f)
-                }
-                .layout { measurable, constraints ->
-                    val placeable = measurable.measure(
-                        Constraints(
-                            minWidth = constraints.minHeight,
-                            maxWidth = constraints.maxHeight,
-                            minHeight = constraints.minWidth,
-                            maxHeight = constraints.maxHeight,
-                        )
-                    )
-                    layout(placeable.height, placeable.width) {
-                        placeable.place(-placeable.width, 0)
-                    }
-                }
-                .width(280.dp)
-                .height(50.dp),
-            colors = SliderDefaults.colors(
-                thumbColor = MaterialTheme.colorScheme.primary,
-                activeTrackColor = MaterialTheme.colorScheme.primary,
-                inactiveTrackColor = MaterialTheme.colorScheme.surface
-            ),
-            valueRange = 0f..100f
-        )
+        SliderSnapRelease(sliderValue, -100f..100f, 0f)
     }
 }

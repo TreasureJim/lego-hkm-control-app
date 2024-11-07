@@ -13,8 +13,6 @@ import androidx.navigation.navArgument
 import com.findingtreasure.phonependant.datastore.ConnectionDataStore
 import com.findingtreasure.phonependant.model.Position
 import com.findingtreasure.phonependant.ui.screens.ConnectionScreen
-import com.findingtreasure.phonependant.ui.screens.JointRotationScreen
-import com.findingtreasure.phonependant.ui.screens.PositionListScreen
 import com.findingtreasure.phonependant.ui.theme.PhonePendantTheme
 import com.findingtreasure.phonependant.viewmodel.ConnectionViewModel
 import kotlinx.coroutines.launch
@@ -25,8 +23,7 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import com.findingtreasure.phonependant.ui.screens.AccelerometerInputScreen
-import com.findingtreasure.phonependant.ui.screens.CoordinateInputScreen
+import com.findingtreasure.phonependant.ui.screens.JointRotationScreen
 
 class MainActivity : ComponentActivity() {
 	override fun onCreate(savedInstanceState: Bundle?) {
@@ -62,7 +59,7 @@ fun MainAppNavigation() {
 			ConnectionScreen(
 				viewModel = viewModel,
 				onConnect = {
-					navController.navigate("positionList")
+					navController.navigate("jointRotation/")
 				}
 			)
 		}
@@ -99,27 +96,16 @@ fun MainAppNavigation() {
 
 		// Joint Rotation Screen
 		composable(
-			route = "jointRotation/{positionId}",
-			arguments = listOf(
-				navArgument("positionId") { type = NavType.IntType }
-			)
+			route = "jointRotation/",
 		) { backStackEntry ->
 			val positionId = backStackEntry.arguments?.getInt("positionId") ?: 0
 
 			JointRotationScreen(
-				onTabSelected = { screen, updatedPosition ->
-					// Update the position in the list
-					val index = positions.indexOfFirst { it.id == updatedPosition.id }
-					if (index != -1) {
-						positions[index] = updatedPosition
-					}
-					navController.navigate(screen) {
-						popUpTo("jointRotation/$positionId") { inclusive = true }
-					}
-				}
+				null,
+				{},
 			)
 		}
-
+//
 //		// Coordinate Input Screen
 //		composable(
 //			route = "coordinateInput/{positionId}",

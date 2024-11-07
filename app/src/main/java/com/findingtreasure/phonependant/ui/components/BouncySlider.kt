@@ -3,8 +3,12 @@ package com.findingtreasure.phonependant
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -22,7 +26,9 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun SliderSnapRelease(
     sliderPosition: MutableState<Float>,
-    defaultPosition: Float) {
+    range: ClosedFloatingPointRange<Float>,
+    defaultPosition: Float
+) {
 
     // State to track whether the user is touching the slider
     val isTouching = remember { androidx.compose.runtime.mutableStateOf(false) }
@@ -46,7 +52,7 @@ fun SliderSnapRelease(
                 onSliderRelease(sliderPosition.value)  // Snap to default position when released
                 isTouching.value = false // Set isTouching to false when interaction ends
             },
-            valueRange = -100f..100f,
+            valueRange = range,
             modifier = Modifier
                 .graphicsLayer {
                     rotationZ = 270f
@@ -66,7 +72,12 @@ fun SliderSnapRelease(
                     }
                 }
                 .width(280.dp)
-                .height(50.dp)
+                .height(50.dp),
+            colors = SliderDefaults.colors(
+                thumbColor = MaterialTheme.colorScheme.primary,
+                activeTrackColor = MaterialTheme.colorScheme.primary,
+                inactiveTrackColor = MaterialTheme.colorScheme.surface
+            ),
         )
 
         // Show Text only if the user is interacting with the slider
@@ -78,10 +89,10 @@ fun SliderSnapRelease(
     }
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 fun PreviewSliderWithSnapOnRelease() {
     val default = 0f
     val sliderPosition = remember { mutableStateOf(default) }
-    SliderSnapRelease(sliderPosition = sliderPosition, default)
+    SliderSnapRelease(sliderPosition = sliderPosition, -100f..100f, default)
 }

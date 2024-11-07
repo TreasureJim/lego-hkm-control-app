@@ -21,4 +21,3 @@ dependencyResolutionManagement {
 
 rootProject.name = "Phone Pendant"
 include(":app")
-include(":comms")
