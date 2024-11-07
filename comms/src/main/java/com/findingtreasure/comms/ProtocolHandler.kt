@@ -1,7 +1,10 @@
+package com.findingtreasure.comms
+
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
+import java.util.UUID
 
-class ProtocolHandler {
+object ProtocolHandler {
     // Encoding method
     fun encode(message: Any): ByteArray {
         return when (message) {
@@ -18,6 +21,10 @@ class ProtocolHandler {
             3 -> decodeRobotStatus(data)
             else -> null
         }
+    }
+
+    fun generateMotionId() : ByteArray {
+        return UUID.randomUUID().toString().toByteArray()
     }
 
     private fun encodeMoveJog(moveJog: MoveJog): ByteArray {

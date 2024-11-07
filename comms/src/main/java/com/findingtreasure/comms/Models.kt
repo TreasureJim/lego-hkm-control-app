@@ -1,3 +1,5 @@
+package com.findingtreasure.comms
+
 data class MotionId(
     val id: ByteArray, // 16 bytes
     val status: Byte   // 1 byte
