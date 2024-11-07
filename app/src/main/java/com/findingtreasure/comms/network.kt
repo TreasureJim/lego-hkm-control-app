@@ -1,17 +1,17 @@
-package com.findingtreasure.phonependant
+package com.findingtreasure.comms
 
-import java.io.InputStream
 import java.io.OutputStream
 import java.net.InetAddress
 import java.net.Socket
-import java.io.BufferedReader
-import java.io.InputStreamReader
+import java.io.InputStream
+import java.nio.ByteBuffer
+import java.util.UUID
 
-class NetworkManager {
+object NetworkManager {
 
     // This will store the connected socket once the connection is established
     private var connectedSocket: Socket? = null
-    private var reader: BufferedReader? = null
+    private var reader: InputStream? = null
     private var writer: OutputStream? = null
 
     // Method to initiate the connection on a background thread
@@ -27,7 +27,7 @@ class NetworkManager {
                 connectedSocket = socket
 
                 // Setup input/output streams for the socket
-                reader = BufferedReader(InputStreamReader(socket.getInputStream()))
+                reader = socket.getInputStream()
                 writer = socket.getOutputStream()
 
                 // Start reading from the socket in a background thread
@@ -40,6 +40,10 @@ class NetworkManager {
         }.start()
     }
 
+   fun disconnect() {
+       connectedSocket?.close()
+   }
+
     // Method to retrieve the connected socket (if available)
     fun getSocket(): Socket? {
         return connectedSocket
@@ -50,14 +54,21 @@ class NetworkManager {
         try {
             val socket = connectedSocket
             if (socket != null && socket.isConnected) {
-                // Read data from the socket's input stream in a loop
-                var line: String?
+
+                val sigId = ByteArray(1)
                 while (socket.isConnected && !socket.isInputShutdown) {
-                    line = reader?.readLine()
-                    if (line != null) {
-                        // Process the incoming data
-                        println("Received: $line")
+                    if (reader?.read(sigId) != 1) {
+                        println("[ERROR] Didn't read 1 byte")
+                        continue
                     }
+
+                    val numBytes = ProtocolHandler.numBytesToDecode(sigId[0].toInt())
+                    val buf = ByteArray(numBytes)
+                    if (reader?.read(sigId) != numBytes) {
+                        println("[ERROR] Didn't read $numBytes bytes")
+                        continue
+                    }
+                    ProtocolHandler.decode(buf)
                 }
             }
         } catch (e: Exception) {
@@ -67,9 +78,9 @@ class NetworkManager {
     }
 
     // Method to send data to the socket
-    fun sendData(data: String) {
+    fun sendData(data: ByteArray) {
         try {
-            writer?.write(data.toByteArray())
+            writer?.write(data)
             writer?.flush()
             println("Sent: $data")
         } catch (e: Exception) {
@@ -77,4 +88,21 @@ class NetworkManager {
             println("Error sending data: ${e.message}")
         }
     }
+
+    fun sendJogXYZ(uuid: UUID, x: Double, y: Double, z: Double) {
+        val jog = MoveJog(uuidToByteArray(uuid), x, y, z, 0.0, 0.0, 0.0, 0.0)
+        sendData(ProtocolHandler.encodeMoveJog(jog))
+    }
+
+    fun sendJogJoints(uuid: UUID, j1: Double, j2: Double, j3: Double, j4: Double) {
+        val jog = MoveJog(uuidToByteArray(uuid), 0.0, 0.0, 0.0, j1, j2, j3, j4)
+        sendData(ProtocolHandler.encodeMoveJog(jog))
+    }
+}
+
+fun uuidToByteArray(uuid: UUID): ByteArray {
+    val byteBuffer = ByteBuffer.allocate(16) // UUID is 16 bytes
+    byteBuffer.putLong(uuid.mostSignificantBits)
+    byteBuffer.putLong(uuid.leastSignificantBits)
+    return byteBuffer.array()
 }

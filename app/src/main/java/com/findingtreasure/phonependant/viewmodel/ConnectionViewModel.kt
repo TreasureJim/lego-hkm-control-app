@@ -2,17 +2,14 @@ package com.findingtreasure.phonependant.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.findingtreasure.phonependant.NetworkManager
+import com.findingtreasure.comms.NetworkManager
 import com.findingtreasure.phonependant.datastore.ConnectionDataStore
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import java.net.Socket
 
 class ConnectionViewModel(private val dataStore: ConnectionDataStore) : ViewModel() {
-
-    private val networkmanager = NetworkManager()
 
     private val _ip = MutableStateFlow("")
     val ip: StateFlow<String> = _ip
@@ -63,8 +60,8 @@ class ConnectionViewModel(private val dataStore: ConnectionDataStore) : ViewMode
 
         if (isIpValid && isPortValid) {
             viewModelScope.launch {
-                networkmanager.connectToAddress(ip.value, port.value.toInt())
-                _isConnected.value = networkmanager.getSocket() != null
+                NetworkManager.connectToAddress(ip.value, port.value.toInt())
+                _isConnected.value = NetworkManager.getSocket() != null
                 if (_isRememberMe.value) {
                     dataStore.savePreferences(_isRememberMe.value, _ip.value, _port.value)
                 }

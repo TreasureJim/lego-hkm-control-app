@@ -3,33 +3,43 @@ package com.findingtreasure.phonependant.ui.screens
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.graphics.TransformOrigin
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.layout.layout
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
+import com.findingtreasure.comms.NetworkManager
 import com.findingtreasure.phonependant.SliderSnapRelease
 import com.findingtreasure.phonependant.model.Position
 import com.findingtreasure.phonependant.ui.components.RobotStatusDisplay
+import com.findingtreasure.phonependant.viewmodel.SettingsViewModel
+import kotlinx.coroutines.delay
+import java.util.UUID
 
 @Composable
 fun JointRotationScreen(
-    position: Position?,
     onSavePosition: () -> Unit,
+    settings: SettingsViewModel
 ) {
-    val slider1Value = remember { mutableStateOf(0f) }
-    val slider2Value = remember { mutableStateOf(0f) }
-    val slider3Value = remember { mutableStateOf(0f) }
+    val slider1 = remember { mutableStateOf(0.0) }
+    val slider2 = remember { mutableStateOf(0.0) }
+    val slider3 = remember { mutableStateOf(0.0) }
+
+    LaunchedEffect(Unit) {
+        while (true) {
+            if (slider1.value.toInt() == 0 && slider2.value.toInt() == 0 && slider3.value.toInt() == 0)
+                continue
+
+            val sliders = doubleArrayOf(
+                slider1.value,
+                slider2.value,
+                slider3.value
+            ).map { x -> x.toDouble() * settings.sensitivity.value }
+            NetworkManager.sendJogJoints(UUID.randomUUID(), sliders[0], sliders[1], sliders[2], 0.0)
+            delay((1 / settings.commandSendHertz.value * 1000).toLong())
+        }
+    }
 
     // Main container
     Column(
@@ -93,16 +103,14 @@ fun JointRotationScreen(
                     .fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                AxisSlider("1", slider1Value)
-                AxisSlider("2", slider2Value)
-                AxisSlider("3", slider3Value)
+                AxisSlider("1", slider1)
+                AxisSlider("2", slider2)
+                AxisSlider("3", slider3)
             }
 
             Spacer(modifier = Modifier.weight(1f))
 
-            if (position != null) {
-                RobotStatusDisplay(position, onSavePosition)
-            }
+            RobotStatusDisplay(Global, onSavePosition)
         }
     }
 }
