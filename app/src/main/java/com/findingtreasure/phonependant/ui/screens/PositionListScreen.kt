@@ -164,11 +164,11 @@ fun PositionItem(
                     }
                     Spacer(modifier = Modifier.width(16.dp))
                     Column(modifier = Modifier.weight(1f)) {
-                        CoordinateDisplay(label = "1", value = position.axis1.toString())
+                        CoordinateDisplay(label = "1", value = position.j1.toString())
                         Spacer(modifier = Modifier.height(8.dp))
-                        CoordinateDisplay(label = "2", value = position.axis2.toString())
+                        CoordinateDisplay(label = "2", value = position.j2.toString())
                         Spacer(modifier = Modifier.height(8.dp))
-                        CoordinateDisplay(label = "3", value = position.axis3.toString())
+                        CoordinateDisplay(label = "3", value = position.j3.toString())
                     }
                 }
 
