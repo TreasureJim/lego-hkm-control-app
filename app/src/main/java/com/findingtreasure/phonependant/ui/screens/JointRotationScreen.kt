@@ -19,12 +19,13 @@ import java.util.UUID
 
 @Composable
 fun JointRotationScreen(
+    currentPosition: State<Position>,
     onSavePosition: () -> Unit,
     settings: SettingsViewModel
 ) {
-    val slider1 = remember { mutableStateOf(0.0) }
-    val slider2 = remember { mutableStateOf(0.0) }
-    val slider3 = remember { mutableStateOf(0.0) }
+    val slider1 = remember { mutableStateOf(0f) }
+    val slider2 = remember { mutableStateOf(0f) }
+    val slider3 = remember { mutableStateOf(0f) }
 
     LaunchedEffect(Unit) {
         while (true) {
@@ -32,10 +33,10 @@ fun JointRotationScreen(
                 continue
 
             val sliders = doubleArrayOf(
-                slider1.value,
-                slider2.value,
-                slider3.value
-            ).map { x -> x.toDouble() * settings.sensitivity.value }
+                slider1.value.toDouble(),
+                slider2.value.toDouble(),
+                slider3.value.toDouble()
+            ).map { x -> x * settings.sensitivity.value }
             NetworkManager.sendJogJoints(UUID.randomUUID(), sliders[0], sliders[1], sliders[2], 0.0)
             delay((1 / settings.commandSendHertz.value * 1000).toLong())
         }
@@ -110,7 +111,7 @@ fun JointRotationScreen(
 
             Spacer(modifier = Modifier.weight(1f))
 
-            RobotStatusDisplay(Global, onSavePosition)
+            RobotStatusDisplay(currentPosition.value, onSavePosition)
         }
     }
 }

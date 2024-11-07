@@ -1,16 +1,11 @@
 package com.findingtreasure.phonependant.viewmodel
 
-import android.content.Context
-import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.findingtreasure.phonependant.datastore.SettingsDataStore
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 class SettingsViewModel(private val dataStore: SettingsDataStore) : ViewModel() {
@@ -22,8 +17,8 @@ class SettingsViewModel(private val dataStore: SettingsDataStore) : ViewModel() 
 
     init {
         viewModelScope.launch {
-            _sensitivity.value = dataStore.sensitivity.first() ?: 1f
-            _commandSendHertz.value = dataStore.commandSendHertz.first() ?: 100
+            _sensitivity.value = dataStore.sensitivity.first()
+            _commandSendHertz.value = dataStore.commandSendHertz.first()
         }
     }
 

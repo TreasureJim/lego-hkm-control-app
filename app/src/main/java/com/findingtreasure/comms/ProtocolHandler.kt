@@ -1,5 +1,6 @@
 package com.findingtreasure.comms
 
+import com.findingtreasure.phonependant._currentPostion
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
@@ -52,7 +53,11 @@ object ProtocolHandler {
         val j3 = buffer.double
         val j4 = buffer.double
 
-        return RobotStatus(x, y, z, j1, j2, j3, j4)
+        val status = RobotStatus(x, y, z, j1, j2, j3, j4)
+
+        _currentPostion.value = status
+
+        return status
     }
 
     // ENCODE

@@ -31,7 +31,7 @@ object NetworkManager {
                 writer = socket.getOutputStream()
 
                 // Start reading from the socket in a background thread
-                readFromSocket()
+//                readFromSocket()
 
             } catch (e: Exception) {
                 e.printStackTrace()
