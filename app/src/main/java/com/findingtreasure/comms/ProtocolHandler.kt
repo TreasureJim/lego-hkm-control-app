@@ -3,6 +3,7 @@ package com.findingtreasure.comms
 import com.findingtreasure.phonependant._currentPostion
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
+import java.util.UUID
 
 enum class SIG_ID_STRUCTS(val id: Int, val size: Int) {
     MotionId(0, 18),
@@ -78,5 +79,11 @@ object ProtocolHandler {
 
     fun encodeRobotRequestStatus(): ByteArray {
         return byteArrayOf(0x02) // s_id for RobotRequestStatus
+    }
+
+    // HELPER
+
+    fun generateMotionId(): ByteArray {
+        return UUID.randomUUID().toString().toByteArray()
     }
 }

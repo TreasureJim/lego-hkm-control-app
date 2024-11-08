@@ -8,10 +8,7 @@
       <SelectionState runConfigName="comms">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="PreviewSliderWithOnRelease">
-        <option name="selectionMode" value="DROPDOWN" />
-      </SelectionState>
-      <SelectionState runConfigName="PreviewSliderWithSnapOnRelease">
+      <SelectionState runConfigName="comms">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>

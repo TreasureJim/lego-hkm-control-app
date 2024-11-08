@@ -2,45 +2,43 @@ package com.findingtreasure.phonependant.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.unit.dp
-import com.findingtreasure.comms.NetworkManager
-import com.findingtreasure.phonependant.SliderSnapRelease
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.findingtreasure.phonependant.model.Position
-import com.findingtreasure.phonependant.ui.components.RobotStatusDisplay
+import com.findingtreasure.phonependant.ui.helper.DisplayField
+import com.findingtreasure.phonependant.ui.helper.AxisSlider
+import com.findingtreasure.phonependant.viewmodel.JoggingViewModel
+import com.findingtreasure.phonependant.viewmodel.JoggingViewModelFactory
 import com.findingtreasure.phonependant.viewmodel.SettingsViewModel
-import kotlinx.coroutines.delay
-import java.util.UUID
 
 @Composable
 fun JointRotationScreen(
-    currentPosition: State<Position>,
-    onSavePosition: () -> Unit,
+    position: Position?,
+    onTabSelected: (String, Position) -> Unit,
+    onSave: (Position) -> Unit,
     settings: SettingsViewModel
 ) {
-    val slider1 = remember { mutableStateOf(0f) }
-    val slider2 = remember { mutableStateOf(0f) }
-    val slider3 = remember { mutableStateOf(0f) }
+    // Pass position and ProtocolHandler to the factory
+    val viewModel: JoggingViewModel = viewModel(
+        factory = JoggingViewModelFactory (
+            initialPosition = position ?: Position(0, "", 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
+            settings = settings,
+        )
+    )
 
-    LaunchedEffect(Unit) {
-        while (true) {
-            if (slider1.value.toInt() == 0 && slider2.value.toInt() == 0 && slider3.value.toInt() == 0)
-                continue
-
-            val sliders = doubleArrayOf(
-                slider1.value.toDouble(),
-                slider2.value.toDouble(),
-                slider3.value.toDouble()
-            ).map { x -> x * settings.sensitivity.value }
-            NetworkManager.sendJogJoints(UUID.randomUUID(), sliders[0], sliders[1], sliders[2], 0.0)
-            delay((1 / settings.commandSendHertz.value * 1000).toLong())
-        }
-    }
+    val positionState by viewModel.positionState.collectAsState()
+    val slider1Value by viewModel.slider1Value.collectAsState()
+    val slider2Value by viewModel.slider2Value.collectAsState()
+    val slider3Value by viewModel.slider3Value.collectAsState()
 
     // Main container
     Column(
@@ -56,23 +54,19 @@ fun JointRotationScreen(
             modifier = Modifier.fillMaxWidth()
         ) {
             Tab(selected = true, onClick = { /* Stay on Joint screen */ }) {
-                Text(
-                    "Joint",
-                    modifier = Modifier.padding(16.dp),
-                    style = MaterialTheme.typography.labelSmall
-                )
+                Text("Joint", modifier = Modifier.padding(16.dp), style = MaterialTheme.typography.labelSmall)
             }
-//            Tab(selected = false, onClick = { onTabSelected("coordinateInput/${position?.id}", position!!.copy(name = positionName)) }) {
-//                Text("Coordinate", modifier = Modifier.padding(16.dp), style = MaterialTheme.typography.labelSmall)
-//            }
-//            Tab(selected = false, onClick = { onTabSelected("accelerometerInput/${position?.id}", position!!.copy(name = positionName)) }) {
-//                Text("Accelerometer", modifier = Modifier.padding(16.dp), style = MaterialTheme.typography.labelSmall)
-//            }
+            Tab(selected = false, onClick = { onTabSelected("coordinateInput/${positionState.id}", positionState)}) {
+                Text("Coordinate", modifier = Modifier.padding(16.dp), style = MaterialTheme.typography.labelSmall)
+            }
+            Tab(selected = false, onClick = { onTabSelected("accelerometerInput/${positionState.id}", positionState) }) {
+                Text("Accelerometer", modifier = Modifier.padding(16.dp), style = MaterialTheme.typography.labelSmall)
+            }
         }
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        Column(
+        Column (
             modifier = Modifier
                 .fillMaxSize()
                 .padding(16.dp)
@@ -87,14 +81,6 @@ fun JointRotationScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Axis Labels and Sliders
-            Text(
-                text = "Axis",
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onBackground,
-                modifier = Modifier.align(Alignment.CenterHorizontally)
-            )
-
             Spacer(modifier = Modifier.height(16.dp))
 
             // Sliders in a Row
@@ -104,43 +90,93 @@ fun JointRotationScreen(
                     .fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                AxisSlider("1", slider1)
-                AxisSlider("2", slider2)
-                AxisSlider("3", slider3)
+                AxisSlider(label = "1", sliderValue = slider1Value, onValueChange = { viewModel.setSliderValue("1", it) })
+                AxisSlider(label = "2", sliderValue = slider2Value, onValueChange = { viewModel.setSliderValue("2", it) })
+                AxisSlider(label = "3", sliderValue = slider3Value, onValueChange = { viewModel.setSliderValue("3", it) })
             }
 
-            Spacer(modifier = Modifier.weight(1f))
+            // DisplayFields for Joint Values and Coordinates in Two Columns
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                // Column for Joint Values
+                Column(horizontalAlignment = Alignment.Start) {
+                    DisplayField(label = "1", value = positionState.j1.toString())
+                    Spacer(modifier = Modifier.height(8.dp))
+                    DisplayField(label = "2", value = positionState.j2.toString())
+                    Spacer(modifier = Modifier.height(8.dp))
+                    DisplayField(label = "3", value = positionState.j3.toString())
+                }
 
-            RobotStatusDisplay(currentPosition.value, onSavePosition)
+                // Column for Coordinate Values
+                Column(horizontalAlignment = Alignment.Start) {
+                    DisplayField(label = "X", value = positionState.x.toString())
+                    Spacer(modifier = Modifier.height(8.dp))
+                    DisplayField(label = "Y", value = positionState.y.toString())
+                    Spacer(modifier = Modifier.height(8.dp))
+                    DisplayField(label = "Z", value = positionState.z.toString())
+                }
+            }
+
+            Spacer(modifier = Modifier.weight(1f))  // Spacer to push content upwards
+
+            // Position Name Input Field
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(24.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                // Transparent TextField with custom underline
+                BasicTextField(
+                    value = positionState.name,
+                    onValueChange = { newName ->
+                        viewModel.setName(newName)
+                    },
+                    textStyle = MaterialTheme.typography.bodyLarge.copy(color = Color.White),
+                    modifier = Modifier
+                        .weight(1f)
+                        .background(Color.Transparent)
+                        .padding(vertical = 8.dp),
+                    cursorBrush = SolidColor(MaterialTheme.colorScheme.surface),
+                    decorationBox = { innerTextField ->
+                        Column {
+                            innerTextField()
+
+                            Spacer(modifier = Modifier.height(4.dp))
+
+                            // Custom underline
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(2.dp)
+                                    .background(MaterialTheme.colorScheme.surface)
+                            )
+                        }
+                    }
+                )
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+                // Edit Icon Button
+                IconButton(
+                    onClick = { onSave(positionState) },
+                    modifier = Modifier.size(48.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = "Edit",
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
+            }
         }
     }
 }
 
-@Composable
-fun AxisSlider(label: String, sliderValue: MutableState<Float>) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier
-            .padding(8.dp)
-    ) {
-        // Label Circle
-        Box(
-            modifier = Modifier
-                .size(32.dp)
-                .background(MaterialTheme.colorScheme.primary, CircleShape),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = label,
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onPrimary,
-                textAlign = TextAlign.Center
-            )
-        }
 
-        Spacer(modifier = Modifier.height(32.dp))
 
-        // Slider
-        SliderSnapRelease(sliderValue, -100f..100f, 0f)
-    }
-}

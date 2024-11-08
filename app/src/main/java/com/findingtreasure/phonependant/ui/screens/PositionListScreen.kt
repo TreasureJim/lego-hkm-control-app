@@ -131,6 +131,12 @@ fun PositionItem(
                     modifier = Modifier.clickable { onExpandClick() }
                 )
 
+                Text(
+                    text = position.name,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+
                 // Edit button
                 IconButton(onClick = onEditClick) {
                     Icon(
