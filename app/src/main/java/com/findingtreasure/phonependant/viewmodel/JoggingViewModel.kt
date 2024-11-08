@@ -38,23 +38,23 @@ class JoggingViewModel(
     val sliderZValue: StateFlow<Float> get() = _sliderZValue
 
     init {
-        NetworkManager.sendData(
-            ProtocolHandler.encodeMoveLinear(
-                MoveLinear(
-                    motionId = ProtocolHandler.generateMotionId(),
-                    target = RobTarget(
-                        x = initialPosition.x,
-                        y = initialPosition.y,
-                        z = initialPosition.z,
-                        j4 = 0.0,
-                        a = 0.0,
-                        b = 0.0,
-                        c = 0.0
-                    )
-                )
-            )
-        )
-        startUpdatingPosition(settings.commandSendHertz.value, settings.sensitivity.value)
+//        NetworkManager.sendData(
+//            ProtocolHandler.encodeMoveLinear(
+//                MoveLinear(
+//                    motionId = ProtocolHandler.generateMotionId(),
+//                    target = RobTarget(
+//                        x = initialPosition.x,
+//                        y = initialPosition.y,
+//                        z = initialPosition.z,
+//                        j4 = 0.0,
+//                        a = 0.0,
+//                        b = 0.0,
+//                        c = 0.0
+//                    )
+//                )
+//            )
+//        )
+//        startUpdatingPosition(settings.commandSendHertz.value, settings.sensitivity.value)
     }
 
     // Function to set slider values
