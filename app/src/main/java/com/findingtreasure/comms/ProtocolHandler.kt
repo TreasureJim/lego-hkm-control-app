@@ -1,6 +1,7 @@
 package com.findingtreasure.comms
 
 import com.findingtreasure.phonependant._currentPostion
+import com.findingtreasure.phonependant.model.Position
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.util.UUID
@@ -56,7 +57,7 @@ object ProtocolHandler {
 
         val status = RobotStatus(x, y, z, j1, j2, j3, j4)
 
-        _currentPostion.value = status
+        _currentPostion.value = Position(0,"Default Position", status.x, status.y, status.z, status.j1, status.j2, status.j3)
 
         return status
     }
