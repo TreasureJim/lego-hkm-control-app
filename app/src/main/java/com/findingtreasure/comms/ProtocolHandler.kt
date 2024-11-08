@@ -100,10 +100,6 @@ object ProtocolHandler {
         buffer.putDouble(robTarget.x)
         buffer.putDouble(robTarget.y)
         buffer.putDouble(robTarget.z)
-        buffer.putDouble(robTarget.j4)
-        buffer.putDouble(robTarget.a)
-        buffer.putDouble(robTarget.b)
-        buffer.putDouble(robTarget.c)
         return buffer.array()
     }
 
