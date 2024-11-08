@@ -47,6 +47,7 @@ object NetworkManager {
 
    fun disconnect() {
        connectedSocket?.close()
+       connectedSocket = null
    }
 
     // Method to retrieve the connected socket (if available)

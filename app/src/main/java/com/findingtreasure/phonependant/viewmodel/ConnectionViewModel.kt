@@ -82,7 +82,8 @@ class ConnectionViewModel(private val dataStore: ConnectionDataStore) : ViewMode
     // Log out functionality (clear preferences)
     fun logout() {
         viewModelScope.launch {
-            dataStore.clearPreferences()
+            NetworkManager.disconnect()
+//            dataStore.clearPreferences()
             _isConnected.value = false
         }
     }

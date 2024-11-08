@@ -1,5 +1,6 @@
 package com.findingtreasure.phonependant.viewmodel
 
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.findingtreasure.comms.MoveJog
@@ -49,7 +50,7 @@ class JoggingViewModel(
                 )
             )
         )
-        startUpdatingPosition(settings.commandSendHertz.value, settings.sensitivity.value)
+        startUpdatingPosition(settings.commandSendHertz.value, settings.jointsensitivity.value, settings.coordsensitivity.value)
     }
 
     // Function to set slider values
