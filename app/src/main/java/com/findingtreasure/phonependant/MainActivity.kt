@@ -27,49 +27,56 @@ import com.findingtreasure.phonependant.viewmodel.SettingsViewModel
 import kotlinx.coroutines.flow.asStateFlow
 
 class MainActivity : ComponentActivity() {
-	override fun onCreate(savedInstanceState: Bundle?) {
-		super.onCreate(savedInstanceState)
-		setContent {
-			PhonePendantTheme {
-				MainAppNavigation()
-			}
-		}
-	}
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContent {
+            PhonePendantTheme {
+                MainAppNavigation()
+            }
+        }
+    }
 }
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun MainAppNavigation() {
-	val navController = rememberAnimatedNavController()
-	val context = LocalContext.current
-	val scope = rememberCoroutineScope()
+    val navController = rememberAnimatedNavController()
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
 
-	val connectionDataStore = remember { ConnectionDataStore(context) }
-	val connectionViewModel = remember { ConnectionViewModel(connectionDataStore) }
+    val connectionDataStore = remember { ConnectionDataStore(context) }
+    val connectionViewModel = remember { ConnectionViewModel(connectionDataStore) }
 
-	val settingsDataStore = remember { SettingsDataStore(context) }
-	val settingsViewModel = remember { SettingsViewModel(settingsDataStore) }
+    val settingsDataStore = remember { SettingsDataStore(context) }
+    val settingsViewModel = remember { SettingsViewModel(settingsDataStore) }
 
-	val positions = remember { mutableStateListOf<Position>() }
-	val currentPosition = _currentPostion.asStateFlow()
+    val positions = remember { mutableStateListOf<Position>() }
+    val currentPosition = _currentPostion.asStateFlow()
 
-	AnimatedNavHost(
-		navController = navController,
-		startDestination = "connection",
-		enterTransition = { fadeIn(animationSpec = tween(0)) },    // No animation on enter
-		exitTransition = { fadeOut(animationSpec = tween(0)) },    // No animation on exit
-		popEnterTransition = { fadeIn(animationSpec = tween(0)) }, // No animation on pop enter
-		popExitTransition = { fadeOut(animationSpec = tween(0)) }  // No animation on pop exit
-	) {
-		// Connection Screen
-		composable("connection") {
-			ConnectionScreen(
-				viewModel = connectionViewModel,
-				onConnect = {
-					navController.navigate("jointRotation/")
-				}
-			)
-		}
+    AnimatedNavHost(navController = navController,
+        startDestination = "connection",
+        enterTransition = { fadeIn(animationSpec = tween(0)) },    // No animation on enter
+        exitTransition = { fadeOut(animationSpec = tween(0)) },    // No animation on exit
+        popEnterTransition = { fadeIn(animationSpec = tween(0)) }, // No animation on pop enter
+        popExitTransition = { fadeOut(animationSpec = tween(0)) }  // No animation on pop exit
+    ) {
+        // Connection Screen
+        composable("connection") {
+            ConnectionScreen(viewModel = connectionViewModel, onConnect = {
+                navController.navigate("jointRotation/")
+            })
+        }
+
+        // Joint Rotation Screen
+        composable(
+            route = "jointRotation/",
+        ) {
+            JointRotationScreen(
+                currentPosition.collectAsState(),
+                {},
+                settingsViewModel,
+            )
+        }
 
 //		// Position List Screen
 //		composable("positionList") {
@@ -101,16 +108,6 @@ fun MainAppNavigation() {
 //			)
 //		}
 
-		// Joint Rotation Screen
-		composable(
-			route = "jointRotation/",
-		) { backStackEntry ->
-			JointRotationScreen(
-				currentPosition.collectAsState(),
-				{},
-				settingsViewModel,
-			)
-		}
 //
 //		// Coordinate Input Screen
 //		composable(
@@ -174,5 +171,5 @@ fun MainAppNavigation() {
 //			)
 //		}
 
-	}
+    }
 }

@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.findingtreasure.comms.NetworkManager
 import com.findingtreasure.phonependant.datastore.ConnectionDataStore
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
@@ -61,6 +62,7 @@ class ConnectionViewModel(private val dataStore: ConnectionDataStore) : ViewMode
         if (isIpValid && isPortValid && !_isConnected.value) {
             viewModelScope.launch {
                 NetworkManager.connectToAddress(ip.value, port.value.toInt())
+                delay(100)
                 _isConnected.value = NetworkManager.getSocket() != null
                 if (_isRememberMe.value) {
                     dataStore.savePreferences(_isRememberMe.value, _ip.value, _port.value)
