@@ -60,8 +60,8 @@ object ProtocolHandler {
 
         val status = RobotStatus(x, y, z, j1, j2, j3, j4)
 
-        println("Received robot status: $status")
-        _currentPostion.value = Position(0,"Default Position", status.x, status.y, status.z, status.j1, status.j2, status.j3)
+        val newPosition = _currentPostion.value.copy(x = status.x, y = status.y, z = status.z, j1 = status.j1, j2 = status.j2, j3 = status.j3)
+        _currentPostion.value = newPosition
 
         return status
     }
