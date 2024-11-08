@@ -36,7 +36,7 @@ object NetworkManager {
                 writer = socket.getOutputStream()
 
                 // Start reading from the socket in a background thread
-//                readFromSocket()
+                readFromSocket()
 
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -70,11 +70,11 @@ object NetworkManager {
 
                     val numBytes = ProtocolHandler.numBytesToDecode(sigId[0].toInt())
                     val buf = ByteArray(numBytes)
-                    if (reader?.read(sigId) != numBytes) {
+                    if (reader?.read(buf) != numBytes) {
                         println("[ERROR] Didn't read $numBytes bytes")
                         continue
                     }
-                    ProtocolHandler.decode(buf)
+                    ProtocolHandler.decode(sigId[0], buf)
                 }
             }
         } catch (e: Exception) {
@@ -88,7 +88,7 @@ object NetworkManager {
         try {
             writer?.write(data)
             writer?.flush()
-            println("Sent: $data")
+//            println("Sent: $data")
         } catch (e: Exception) {
             e.printStackTrace()
             println("Error sending data: ${e.message}")

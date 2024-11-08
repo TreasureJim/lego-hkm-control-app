@@ -26,69 +26,55 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.findingtreasure.phonependant.model.Position
+import com.findingtreasure.phonependant.ui.helper.DisplayField
+
+fun formatValue(value: Double, decimalPlaces: Int = 2): String {
+    return String.format("%.${decimalPlaces}E0", value)
+}
 
 @Composable
-fun RobotStatusDisplay(status: Position, addOnClick: () -> Unit) {
+fun RobotStatusDisplay(positionState: Position) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp)
     ) {
-        Text(
-            text = "Robot Status",
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier
-                .padding(bottom = 8.dp)
-                .align(Alignment.CenterHorizontally)
-        )
-
-        // Row for x, y, z coordinates
         Row(
-            modifier = Modifier
+            Modifier
                 .fillMaxWidth()
-                .padding(bottom = 8.dp),
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.CenterVertically
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            Text("x: ${status.x}", fontSize = 16.sp)
-            Text("y: ${status.y}", fontSize = 16.sp)
-            Text("z: ${status.z}", fontSize = 16.sp)
-        }
+            // Column for Joint Values
+            Column(horizontalAlignment = Alignment.Start) {
+                DisplayField(label = "1", value = formatValue(positionState.j1))
+                Spacer(modifier = Modifier.height(8.dp))
+                DisplayField(label = "2", value = formatValue(positionState.j2))
+                Spacer(modifier = Modifier.height(8.dp))
+                DisplayField(label = "3", value = formatValue(positionState.j3))
+            }
 
-        // Row for j1, j2, j3, j4 joint angles
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 8.dp),
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text("j1: ${status.j1}", fontSize = 16.sp)
-            Text("j2: ${status.j2}", fontSize = 16.sp)
-            Text("j3: ${status.j3}", fontSize = 16.sp)
-            //Text("j4: ${status.j4}", fontSize = 16.sp)
-        }
+            Spacer(modifier = Modifier.height(16.dp))  // Extra space between columns
 
-        Spacer(modifier = Modifier.height(20.dp))
-
-        IconButton(onClick = addOnClick, Modifier.fillMaxWidth(), colors = IconButtonDefaults.iconButtonColors(containerColor = Color(0xFF2196F3))) {
-            Icon(
-                imageVector = Icons.Default.Add,
-                contentDescription = "Add",
-                modifier = Modifier.height(24.dp),
-                tint = MaterialTheme.colorScheme.primary // Color of the icon
-            )
+            // Column for Coordinate Values
+            Column(horizontalAlignment = Alignment.Start) {
+                DisplayField(label = "X", value = formatValue(positionState.x))
+                Spacer(modifier = Modifier.height(8.dp))
+                DisplayField(label = "Y", value = formatValue(positionState.y))
+                Spacer(modifier = Modifier.height(8.dp))
+                DisplayField(label = "Z", value = formatValue(positionState.z))
+            }
         }
     }
 }
 
-//@Preview(showBackground = true)
-//@Composable
-//fun PreviewRobotStatusInfo() {
-//    val status = Position(
-//        x = 12.5, y = 9.2, z = 3.1,
-//        j1 = 45.0, j2 = 30.5, j3 = 15.2, j4 = 90.0
-//    )
-//    RobotStatusDisplay(status = status, {})
-//}
+@Preview(showBackground = true)
+@Composable
+fun PreviewRobotStatusInfo() {
+    val status = Position(
+        1, "Example Position",
+        x = 12.5, y = 9.2, z = 3.1,
+        j1 = 45.0, j2 = 30.5, j3 = 15.2
+    )
+    RobotStatusDisplay(status)
+}

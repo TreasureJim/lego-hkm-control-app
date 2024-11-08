@@ -13,7 +13,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.findingtreasure.phonependant._currentPostion
 import com.findingtreasure.phonependant.model.Position
+import com.findingtreasure.phonependant.ui.components.RobotStatusDisplay
 import com.findingtreasure.phonependant.ui.helper.AxisSlider
 import com.findingtreasure.phonependant.ui.helper.DisplayField
 import com.findingtreasure.phonependant.viewmodel.JoggingViewModel
@@ -35,7 +37,7 @@ fun CoordinateInputScreen(
         )
     )
 
-    val positionState by viewModel.positionState.collectAsState()
+    val positionState by _currentPostion.collectAsState()
     val sliderXValue = viewModel.sliderXValue
     val sliderYValue = viewModel.sliderYValue
     val sliderZValue = viewModel.sliderZValue
@@ -89,36 +91,13 @@ fun CoordinateInputScreen(
                     .fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-//                AxisSlider(label = "X", sliderValue = sliderXValue, onValueChange = { viewModel.setSliderValue("X", it) })
-//                AxisSlider(label = "Y", sliderValue = sliderYValue, onValueChange = { viewModel.setSliderValue("Y", it) })
-//                AxisSlider(label = "Z", sliderValue = sliderZValue, onValueChange = { viewModel.setSliderValue("Z", it) })
+                AxisSlider(label = "X", sliderValue = sliderXValue, onValueChange = { viewModel.setSliderValue("X", it) })
+                AxisSlider(label = "Y", sliderValue = sliderYValue, onValueChange = { viewModel.setSliderValue("Y", it) })
+                AxisSlider(label = "Z", sliderValue = sliderZValue, onValueChange = { viewModel.setSliderValue("Z", it) })
             }
 
             // DisplayFields for Joint Values and Coordinates in Two Columns
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
-                // Column for Joint Values
-                Column(horizontalAlignment = Alignment.Start) {
-                    DisplayField(label = "J1", value = positionState.j1.toString())
-                    Spacer(modifier = Modifier.height(8.dp))
-                    DisplayField(label = "J2", value = positionState.j2.toString())
-                    Spacer(modifier = Modifier.height(8.dp))
-                    DisplayField(label = "J3", value = positionState.j3.toString())
-                }
-
-                // Column for Coordinate Values
-                Column(horizontalAlignment = Alignment.Start) {
-                    DisplayField(label = "X", value = positionState.x.toString())
-                    Spacer(modifier = Modifier.height(8.dp))
-                    DisplayField(label = "Y", value = positionState.y.toString())
-                    Spacer(modifier = Modifier.height(8.dp))
-                    DisplayField(label = "Z", value = positionState.z.toString())
-                }
-            }
+            RobotStatusDisplay(_currentPostion.collectAsState().value)
 
             Spacer(modifier = Modifier.weight(1f))  // Spacer to push content upwards
 
@@ -131,33 +110,33 @@ fun CoordinateInputScreen(
                 horizontalArrangement = Arrangement.Center
             ) {
                 // Transparent TextField with custom underline
-                BasicTextField(
-                    value = positionState.name,
-                    onValueChange = { newName ->
-                        viewModel.setName(newName)
-                    },
-                    textStyle = MaterialTheme.typography.bodyLarge.copy(color = Color.White),
-                    modifier = Modifier
-                        .weight(1f)
-                        .background(Color.Transparent)
-                        .padding(vertical = 8.dp),
-                    cursorBrush = SolidColor(MaterialTheme.colorScheme.surface),
-                    decorationBox = { innerTextField ->
-                        Column {
-                            innerTextField()
-
-                            Spacer(modifier = Modifier.height(4.dp))
-
-                            // Custom underline
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(2.dp)
-                                    .background(MaterialTheme.colorScheme.surface)
-                            )
-                        }
-                    }
-                )
+//                BasicTextField(
+//                    value = positionState.name,
+//                    onValueChange = { newName ->
+//                        _currentPostion.value.name = newName
+//                    },
+//                    textStyle = MaterialTheme.typography.bodyLarge.copy(color = Color.White),
+//                    modifier = Modifier
+//                        .weight(1f)
+//                        .background(Color.Transparent)
+//                        .padding(vertical = 8.dp),
+//                    cursorBrush = SolidColor(MaterialTheme.colorScheme.surface),
+//                    decorationBox = { innerTextField ->
+//                        Column {
+//                            innerTextField()
+//
+//                            Spacer(modifier = Modifier.height(4.dp))
+//
+//                            // Custom underline
+//                            Box(
+//                                modifier = Modifier
+//                                    .fillMaxWidth()
+//                                    .height(2.dp)
+//                                    .background(MaterialTheme.colorScheme.surface)
+//                            )
+//                        }
+//                    }
+//                )
 
                 Spacer(modifier = Modifier.width(8.dp))
 

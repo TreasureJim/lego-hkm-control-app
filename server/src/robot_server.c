@@ -45,6 +45,8 @@ void robot_decode(int robot_socket) {
 
   // register encoder types
   chan_enc_register_movejog(encoder);
+  chan_enc_register_movelinear(encoder);
+  chan_enc_register_movepos(encoder);
   chan_enc_register_robotrequeststatus(encoder);
 
   // register decoder types
@@ -62,3 +64,5 @@ void robot_decode(int robot_socket) {
 
 void robot_send_movejog(struct movejog* m) { encode_movejog(encoder, m); }
 void robot_send_robotrequeststatus(struct robotrequeststatus* m) { encode_robotrequeststatus(encoder, m); }
+void robot_send_movelinear(struct movelinear* m) { encode_movelinear(encoder, m); }
+void robot_send_movepos(struct movepos* m) { encode_movepos(encoder, m); }

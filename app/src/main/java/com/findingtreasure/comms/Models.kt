@@ -41,4 +41,9 @@ data class MoveLinear(
     val target: RobTarget    // 56 bytes
 )
 
+data class MovePos(
+    val motionId: ByteArray, // 16 bytes
+    val target: RobTarget    // 56 bytes
+)
+
 object RobotRequestStatus
