@@ -1,13 +1,11 @@
 package com.findingtreasure.phonependant.viewmodel
 
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.findingtreasure.comms.MoveJog
 import com.findingtreasure.comms.MoveLinear
 import com.findingtreasure.comms.NetworkManager
 import com.findingtreasure.comms.ProtocolHandler
-import com.findingtreasure.comms.RobotStatus
 import com.findingtreasure.comms.RobTarget
 import com.findingtreasure.phonependant.model.Position
 import kotlinx.coroutines.Dispatchers
@@ -26,42 +24,48 @@ class JoggingViewModel(
     val positionState: StateFlow<Position> get() = _positionState
 
     // Sliders for joint rotation
-    val slider1Value = mutableFloatStateOf(0f)
-    val slider2Value = mutableFloatStateOf(0f)
-    val slider3Value = mutableFloatStateOf(0f)
-    val sliderXValue = mutableFloatStateOf(0f)
-    val sliderYValue = mutableFloatStateOf(0f)
-    val sliderZValue = mutableFloatStateOf(0f)
+    private val _slider1Value = MutableStateFlow(0f)
+    private val _slider2Value = MutableStateFlow(0f)
+    private val _slider3Value = MutableStateFlow(0f)
+    private val _sliderXValue = MutableStateFlow(0f)
+    private val _sliderYValue = MutableStateFlow(0f)
+    private val _sliderZValue = MutableStateFlow(0f)
+    val slider1Value: StateFlow<Float> get() = _slider1Value
+    val slider2Value: StateFlow<Float> get() = _slider2Value
+    val slider3Value: StateFlow<Float> get() = _slider3Value
+    val sliderXValue: StateFlow<Float> get() = _sliderXValue
+    val sliderYValue: StateFlow<Float> get() = _sliderYValue
+    val sliderZValue: StateFlow<Float> get() = _sliderZValue
 
     init {
-        NetworkManager.sendData(
-            ProtocolHandler.encodeMoveLinear(
-                MoveLinear(
-                    motionId = ProtocolHandler.generateMotionId(),
-                    target = RobTarget(
-                        x = initialPosition.x,
-                        y = initialPosition.y,
-                        z = initialPosition.z,
-                        j4 = 0.0,
-                        a = 0.0,
-                        b = 0.0,
-                        c = 0.0
-                    )
-                )
-            )
-        )
-        startUpdatingPosition(settings.commandSendHertz.value, settings.jointsensitivity.value, settings.coordsensitivity.value)
+//        NetworkManager.sendData(
+//            ProtocolHandler.encodeMoveLinear(
+//                MoveLinear(
+//                    motionId = ProtocolHandler.generateMotionId(),
+//                    target = RobTarget(
+//                        x = initialPosition.x,
+//                        y = initialPosition.y,
+//                        z = initialPosition.z,
+//                        j4 = 0.0,
+//                        a = 0.0,
+//                        b = 0.0,
+//                        c = 0.0
+//                    )
+//                )
+//            )
+//        )
+//        startUpdatingPosition(settings.commandSendHertz.value, settings.sensitivity.value)
     }
 
     // Function to set slider values
     fun setSliderValue(sliderNumber: String, value: Float ) {
         when (sliderNumber) {
-            "1" -> slider1Value.value = value
-            "2" -> slider2Value.value = value
-            "3" -> slider3Value.value = value
-            "X" -> sliderXValue.value = value
-            "Y" -> sliderYValue.value = value
-            "Z" -> sliderZValue.value = value
+            "1" -> _slider1Value.value = value
+            "2" -> _slider2Value.value = value
+            "3" -> _slider3Value.value = value
+            "X" -> _sliderXValue.value = value
+            "Y" -> _sliderYValue.value = value
+            "Z" -> _sliderZValue.value = value
         }
     }
 
@@ -73,20 +77,20 @@ class JoggingViewModel(
     }
 
     // Coroutine to update position every 5 seconds
-    private fun startUpdatingPosition(commandSendHertz: Int, jointSensitivity: Float, coordSensitivity: Float) {
+    private fun startUpdatingPosition(commandSendHertz: Int, sensitivity: Float) {
         viewModelScope.launch(Dispatchers.IO) {
             while (isActive) {
-                if (slider1Value.value != 0f || slider2Value.value != 0f || slider3Value.value != 0f ||
-                    sliderXValue.value != 0f || sliderYValue.value != 0f || sliderZValue.value != 0f) {
+                if (_slider1Value.value != 0f || _slider2Value.value != 0f || _slider3Value.value != 0f ||
+                    _sliderXValue.value != 0f || _sliderYValue.value != 0f || _sliderZValue.value != 0f) {
                     // Send MoveJog command with current slider values
                     val jog = MoveJog(
                         motionId = ProtocolHandler.generateMotionId(),
-                        x = sliderXValue.value.toDouble() * coordSensitivity,
-                        y = sliderYValue.value.toDouble() * coordSensitivity,
-                        z = sliderZValue.value.toDouble() * coordSensitivity,
-                        j1 = slider1Value.value.toDouble() * jointSensitivity,
-                        j2 = slider2Value.value.toDouble() * jointSensitivity,
-                        j3 = slider3Value.value.toDouble() * jointSensitivity,
+                        x = _sliderXValue.value.toDouble() * sensitivity,
+                        y = _sliderYValue.value.toDouble() * sensitivity,
+                        z = _sliderZValue.value.toDouble() * sensitivity,
+                        j1 = _slider1Value.value.toDouble() * sensitivity,
+                        j2 = _slider2Value.value.toDouble() * sensitivity,
+                        j3 = _slider3Value.value.toDouble() * sensitivity,
                         j4 = 0.0
                     )
                     NetworkManager.sendData(

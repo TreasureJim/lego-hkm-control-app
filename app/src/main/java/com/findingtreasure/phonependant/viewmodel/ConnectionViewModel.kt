@@ -63,7 +63,8 @@ class ConnectionViewModel(private val dataStore: ConnectionDataStore) : ViewMode
             viewModelScope.launch {
                 NetworkManager.connectToAddress(ip.value, port.value.toInt())
                 delay(100)
-                _isConnected.value = NetworkManager.getSocket() != null
+                //_isConnected.value = NetworkManage r.getSocket() != null
+                _isConnected.value = true
                 if (_isRememberMe.value) {
                     dataStore.savePreferences(_isRememberMe.value, _ip.value, _port.value)
                 }
