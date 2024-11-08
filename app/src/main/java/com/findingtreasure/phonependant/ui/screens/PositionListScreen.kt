@@ -21,6 +21,10 @@ import androidx.compose.ui.unit.dp
 import com.findingtreasure.phonependant.model.Position
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.ui.text.font.FontWeight
+import com.findingtreasure.phonependant.ui.helper.TrackPath
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @Composable
 fun PositionListScreen(
@@ -30,6 +34,8 @@ fun PositionListScreen(
     onTrackPath: () -> Unit,
     onLogout: () -> Unit
 ) {
+    val coroutineScope = rememberCoroutineScope()
+
     // Wrap everything inside a Column
     Column(
         modifier = Modifier
@@ -108,7 +114,9 @@ fun PositionListScreen(
 
         // Button fixed at the bottom of the screen
         Button(
-            onClick = onTrackPath,
+            onClick = { coroutineScope.launch {
+                TrackPath(positionList)
+            }},
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp),

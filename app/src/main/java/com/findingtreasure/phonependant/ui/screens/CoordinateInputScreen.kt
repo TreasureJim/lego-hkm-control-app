@@ -103,11 +103,11 @@ fun CoordinateInputScreen(
             ) {
                 // Column for Joint Values
                 Column(horizontalAlignment = Alignment.Start) {
-                    DisplayField(label = "1", value = positionState.j1.toString())
+                    DisplayField(label = "J1", value = positionState.j1.toString())
                     Spacer(modifier = Modifier.height(8.dp))
-                    DisplayField(label = "2", value = positionState.j2.toString())
+                    DisplayField(label = "J2", value = positionState.j2.toString())
                     Spacer(modifier = Modifier.height(8.dp))
-                    DisplayField(label = "3", value = positionState.j3.toString())
+                    DisplayField(label = "J3", value = positionState.j3.toString())
                 }
 
                 // Column for Coordinate Values
