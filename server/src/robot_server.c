@@ -32,7 +32,6 @@ void motionid_callbck_func(struct motionid* m, void* ctx) {
 }
 
 void robotstatus_callbck_func(struct robotstatus* m, void* ctx) {
-  printf("Received robotstatus!\n");
   app_send_robotstatus(m);
 }
 
