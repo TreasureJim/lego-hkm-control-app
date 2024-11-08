@@ -63,3 +63,5 @@ void robot_decode(int robot_socket) {
 
 void robot_send_movejog(struct movejog* m) { encode_movejog(encoder, m); }
 void robot_send_robotrequeststatus(struct robotrequeststatus* m) { encode_robotrequeststatus(encoder, m); }
+void robot_send_movelinear(struct movelinear* m) { encode_movelinear(encoder, m); }
+void robot_send_movepos(struct movepos* m) { encode_movepos(encoder, m); }
