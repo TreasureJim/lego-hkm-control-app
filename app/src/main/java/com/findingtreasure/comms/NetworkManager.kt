@@ -70,11 +70,11 @@ object NetworkManager {
 
                     val numBytes = ProtocolHandler.numBytesToDecode(sigId[0].toInt())
                     val buf = ByteArray(numBytes)
-                    if (reader?.read(sigId) != numBytes) {
+                    if (reader?.read(buf) != numBytes) {
                         println("[ERROR] Didn't read $numBytes bytes")
                         continue
                     }
-                    ProtocolHandler.decode(buf)
+                    ProtocolHandler.decode(sigId[0], buf)
                 }
             }
         } catch (e: Exception) {

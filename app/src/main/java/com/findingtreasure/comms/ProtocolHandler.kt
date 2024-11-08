@@ -7,10 +7,10 @@ import java.nio.ByteOrder
 import java.util.UUID
 
 enum class SIG_ID_STRUCTS(val id: Int, val size: Int) {
-    MotionId(0, 18),
+    MotionId(0, 17),
+    RobotStatus(3, 56),
     MoveJog(1, 73),
     RobotRequestStatus(2, 1),
-    RobotStatus(3, 42),
     MoveLinear(4, 73)
 }
 
@@ -28,27 +28,27 @@ object ProtocolHandler {
         }
     }
 
-    fun decode(data: ByteArray): Any? {
-        return when (data.getOrNull(0)?.toInt()) {
-            0 -> decodeMotionId(data)
-            3 -> decodeRobotStatus(data)
+    fun decode(sidId: Byte, data: ByteArray): Any? {
+        return when (sidId) {
+            0x00.toByte() -> decodeMotionId(data)
+            0x03.toByte() -> decodeRobotStatus(data)
             else -> null
         }
     }
 
     private fun decodeMotionId(data: ByteArray): MotionId? {
-        if (data.size != 18 || data[0] != 0.toByte()) return null
+        if (data.size != SIG_ID_STRUCTS.MotionId.size) return null
 
-        val id = data.sliceArray(1..16)
-        val status = data[17]
+        val id = data.sliceArray(0..15)
+        val status = data[16]
 
         return MotionId(id, status)
     }
 
     private fun decodeRobotStatus(data: ByteArray): RobotStatus? {
-        if (data.size != 42) return null
+        if (data.size != SIG_ID_STRUCTS.RobotStatus.size) return null
 
-        val buffer = ByteBuffer.wrap(data, 0, 42).order(ByteOrder.BIG_ENDIAN)
+        val buffer = ByteBuffer.wrap(data).order(ByteOrder.BIG_ENDIAN)
 
         val x = buffer.double
         val y = buffer.double
@@ -60,7 +60,7 @@ object ProtocolHandler {
 
         val status = RobotStatus(x, y, z, j1, j2, j3, j4)
 
-        println("Received robot status!!!")
+        println("Received robot status: $status")
         _currentPostion.value = Position(0,"Default Position", status.x, status.y, status.z, status.j1, status.j2, status.j3)
 
         return status
