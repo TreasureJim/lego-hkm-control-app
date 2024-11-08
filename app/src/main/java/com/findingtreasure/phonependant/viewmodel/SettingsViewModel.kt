@@ -15,8 +15,8 @@ class SettingsViewModel(private val dataStore: SettingsDataStore) : ViewModel() 
     private val _coordsensitivity = MutableStateFlow((1f / 100f * 5))
     val coordsensitivity: StateFlow<Float> = _coordsensitivity
 
-    private val _commandSendHertz = MutableStateFlow(3)
-    val commandSendHertz: StateFlow<Int> = _commandSendHertz
+    private val _commandSendHertz = MutableStateFlow(9f)
+    val commandSendHertz: StateFlow<Float> = _commandSendHertz
 
     init {
         viewModelScope.launch {

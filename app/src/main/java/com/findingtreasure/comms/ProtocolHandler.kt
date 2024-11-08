@@ -60,6 +60,7 @@ object ProtocolHandler {
 
         val status = RobotStatus(x, y, z, j1, j2, j3, j4)
 
+        println("Received robot status!!!")
         _currentPostion.value = Position(0,"Default Position", status.x, status.y, status.z, status.j1, status.j2, status.j3)
 
         return status
@@ -68,7 +69,7 @@ object ProtocolHandler {
     // ENCODE
 
     fun encodeMoveJog(moveJog: MoveJog): ByteArray {
-        val buffer = ByteBuffer.allocate(73).order(ByteOrder.BIG_ENDIAN)
+        val buffer = ByteBuffer.allocate(73).order(ByteOrder.LITTLE_ENDIAN)
         buffer.put(0x01) // s_id for MoveJog
         buffer.put(moveJog.motionId.copyOf(16)) // Ensure motionId is exactly 16 bytes
         buffer.putDouble(moveJog.x)
@@ -86,7 +87,7 @@ object ProtocolHandler {
     }
 
     fun encodeMoveLinear(moveLinear: MoveLinear) : ByteArray {
-        val buffer = ByteBuffer.allocate(73).order(ByteOrder.BIG_ENDIAN)
+        val buffer = ByteBuffer.allocate(73).order(ByteOrder.LITTLE_ENDIAN)
         buffer.put(0x04) // s_id for MoveJog
         buffer.put(moveLinear.motionId.copyOf(16)) // Ensure motionId is exactly 16 bytes
         buffer.put(

@@ -34,22 +34,22 @@ class JoggingViewModel(
     val sliderZValue = mutableFloatStateOf(0f)
 
     init {
-        NetworkManager.sendData(
-            ProtocolHandler.encodeMoveLinear(
-                MoveLinear(
-                    motionId = ProtocolHandler.generateMotionId(),
-                    target = RobTarget(
-                        x = initialPosition.x,
-                        y = initialPosition.y,
-                        z = initialPosition.z,
-                        j4 = 0.0,
-                        a = 0.0,
-                        b = 0.0,
-                        c = 0.0
-                    )
-                )
-            )
-        )
+//        NetworkManager.sendData(
+//            ProtocolHandler.encodeMoveLinear(
+//                MoveLinear(
+//                    motionId = ProtocolHandler.generateMotionId(),
+//                    target = RobTarget(
+//                        x = initialPosition.x,
+//                        y = initialPosition.y,
+//                        z = initialPosition.z,
+//                        j4 = 0.0,
+//                        a = 0.0,
+//                        b = 0.0,
+//                        c = 0.0
+//                    )
+//                )
+//            )
+//        )
         startUpdatingPosition(settings.commandSendHertz.value, settings.jointsensitivity.value, settings.coordsensitivity.value)
     }
 
@@ -73,7 +73,7 @@ class JoggingViewModel(
     }
 
     // Coroutine to update position every 5 seconds
-    private fun startUpdatingPosition(commandSendHertz: Int, jointSensitivity: Float, coordSensitivity: Float) {
+    private fun startUpdatingPosition(commandSendHertz: Float, jointSensitivity: Float, coordSensitivity: Float) {
         viewModelScope.launch(Dispatchers.IO) {
             while (isActive) {
                 if (slider1Value.value != 0f || slider2Value.value != 0f || slider3Value.value != 0f ||
