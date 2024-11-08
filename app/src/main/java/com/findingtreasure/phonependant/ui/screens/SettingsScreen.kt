@@ -1,6 +1,8 @@
 package com.findingtreasure.phonependant.ui.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
@@ -8,6 +10,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -29,7 +32,8 @@ fun SettingsScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .background(MaterialTheme.colorScheme.background)
+            .padding(16.dp),
     ) {
         // Top bar with "Settings" title
         Text(
@@ -45,6 +49,7 @@ fun SettingsScreen(
         Text(
             text = "Joint Sensitivity",
             style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.primary,
             modifier = Modifier.padding(bottom = 8.dp)
         )
         Slider(
@@ -53,7 +58,8 @@ fun SettingsScreen(
             valueRange = 0.01f..0.1f,
             colors = SliderDefaults.colors(
                 thumbColor = MaterialTheme.colorScheme.primary,
-                activeTrackColor = MaterialTheme.colorScheme.primary
+                activeTrackColor = MaterialTheme.colorScheme.primary,
+                inactiveTrackColor = MaterialTheme.colorScheme.secondary
             ),
             modifier = Modifier.padding(bottom = 16.dp)
         )
@@ -62,6 +68,7 @@ fun SettingsScreen(
         Text(
             text = "Coordinate Sensitivity",
             style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.primary,
             modifier = Modifier.padding(bottom = 8.dp)
         )
         Slider(
@@ -70,7 +77,8 @@ fun SettingsScreen(
             valueRange = 0.01f..1f,
             colors = SliderDefaults.colors(
                 thumbColor = MaterialTheme.colorScheme.primary,
-                activeTrackColor = MaterialTheme.colorScheme.primary
+                activeTrackColor = MaterialTheme.colorScheme.primary,
+                inactiveTrackColor = MaterialTheme.colorScheme.secondary
             ),
             modifier = Modifier.padding(bottom = 16.dp)
         )
@@ -79,6 +87,7 @@ fun SettingsScreen(
         Text(
             text = "Command Send Hertz",
             style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.primary,
             modifier = Modifier.padding(bottom = 8.dp)
         )
         BasicTextField(
@@ -88,7 +97,7 @@ fun SettingsScreen(
             },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             singleLine = true,
-            textStyle = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onBackground),
+            textStyle = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onPrimary),
             decorationBox = { innerTextField ->
                 Surface(
                     color = MaterialTheme.colorScheme.surface,
@@ -119,11 +128,12 @@ fun SettingsScreen(
                 viewModel.saveSettings(localJointSensitivity, localCoordSensitivity, commandHertz)
                 onBack()
             },
+            shape = RoundedCornerShape(8.dp),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 16.dp)
         ) {
-            Text("Save Settings", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onPrimary)
+            Text("Save Settings", style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold), color = MaterialTheme.colorScheme.onPrimary)
         }
     }
 }
