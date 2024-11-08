@@ -1,0 +1,16 @@
+# .clang-format
+
+# Use tabs instead of spaces for indentation
+UseTab: ForIndentation
+
+# Set indentation width to match a single tab (adjust if needed)
+TabWidth: 4
+
+# Place the pointer * on the left side of the type
+PointerAlignment: Left
+
+# General style options (optional; these can be adjusted as desired)
+BasedOnStyle: llvm
+
+# Column limit for wrapping lines
+ColumnLimit: 120

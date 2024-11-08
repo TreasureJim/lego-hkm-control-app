@@ -1,0 +1,6 @@
+[submodule "app/libs/comms/chan"]
+	path = app/libs/comms/chan
+	url = git@gitlab.cognibotics.net:nextgen/chan.git
+[submodule "server/libs/chan"]
+	path = server/libs/chan
+	url = git@gitlab.cognibotics.net:nextgen/chan.git

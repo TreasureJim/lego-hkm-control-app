@@ -2,28 +2,26 @@ package com.findingtreasure.phonependant.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.findingtreasure.comms.NetworkManager
 import com.findingtreasure.phonependant.datastore.ConnectionDataStore
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class ConnectionViewModel(private val dataStore: ConnectionDataStore) : ViewModel() {
+
     private val _ip = MutableStateFlow("")
     val ip: StateFlow<String> = _ip
-
     private val _port = MutableStateFlow("")
     val port: StateFlow<String> = _port
-
     private val _isRememberMe = MutableStateFlow(false)
     val isRememberMe: StateFlow<Boolean> = _isRememberMe
-
     private val _isConnected = MutableStateFlow(false)
     val isConnected: StateFlow<Boolean> = _isConnected
-
     private val _ipError = MutableStateFlow<String?>(null)
     val ipError: StateFlow<String?> = _ipError
-
     private val _portError = MutableStateFlow<String?>(null)
     val portError: StateFlow<String?> = _portError
 
@@ -34,7 +32,7 @@ class ConnectionViewModel(private val dataStore: ConnectionDataStore) : ViewMode
             _ip.value = dataStore.ip.first() ?: ""
             _port.value = dataStore.port.first() ?: ""
             if (_isRememberMe.value && _ip.value.isNotEmpty() && _port.value.isNotEmpty()) {
-                _isConnected.value = true // Automatically connect if remembered
+                connect()
             }
         }
     }
@@ -61,8 +59,11 @@ class ConnectionViewModel(private val dataStore: ConnectionDataStore) : ViewMode
         val isIpValid = validateIp(_ip.value)
         val isPortValid = validatePort(_port.value)
 
-        if (isIpValid && isPortValid) {
+        if (isIpValid && isPortValid && !_isConnected.value) {
             viewModelScope.launch {
+                NetworkManager.connectToAddress(ip.value, port.value.toInt())
+                delay(100)
+                //_isConnected.value = NetworkManage r.getSocket() != null
                 _isConnected.value = true
                 if (_isRememberMe.value) {
                     dataStore.savePreferences(_isRememberMe.value, _ip.value, _port.value)
@@ -73,6 +74,11 @@ class ConnectionViewModel(private val dataStore: ConnectionDataStore) : ViewMode
             if (!isPortValid) _portError.value = "Invalid Port"
         }
     }
+
+    // Function to read data from the socket
+//    fun readData(bufferSize: Int = 1024): ByteArray? {
+//        return socket?.let { readFromConnection(it, bufferSize) }
+//    }
 
     // Log out functionality (clear preferences)
     fun logout() {

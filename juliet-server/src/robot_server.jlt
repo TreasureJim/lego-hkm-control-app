@@ -1,0 +1,91 @@
+module RobotServer
+
+using Sockets
+using Avon
+include("./gen/motion_types.jlt")
+using .Motion_types
+
+# NOTE: to check type: `isa(r, TCPReader)`
+
+struct MotionError <: Exception
+    id::Array{UInt8, 1}
+end
+
+function robot_setup_decoder(server::TCPServer, port::UInt16)::Decoder
+    var socket_recv = accept(server)
+    var reader = TCPReader(socket_recv)
+    Decoder(reader)
+end
+
+var command_completed = Event(true)
+export command_completed
+function robot_decoder(dec::Decoder)
+	while true
+		var motion::MotionId
+
+		try
+			motion = decode(dec)::MotionId
+		catch e:
+			println("Error while decoding from robot.")
+			return
+		end
+
+		if motion.status == -1
+			throw(MotionError(motion.id))
+		elseif motion.status == 0
+			print("Motion in-progress: ")
+			println(motion.id)
+		elseif motion.status == 1
+			print("Motion finished: ")
+			println(motion.id)
+			notify(command_completed)
+		else
+			print("Motion unknown status: ")
+			println(motion.id)
+			error("Could not read motion status")
+		end
+	end
+end
+
+struct RobotServerInfo
+	server::TCPServer
+	robot::TCPSocket
+	enc::Encoder
+	dec::Decoder
+	dec_task::Task
+end
+
+function robot_start_server(port::UInt16)::RobotServerInfo
+	var server = listen("0.0.0.0", port, reuseaddr = true)
+	print("Listening for robot on ")
+	println(port)
+
+	var socket_robot::TCPSocket = accept(server)
+	println("Connected to robot")
+
+	var enc = Encoder(TCPWriter(socket_robot))
+	var dec = Decoder(TCPReader(socket_robot))
+
+    # Register channel types on both ends
+    register(enc, MoveLinear)
+    register(enc, MoveArc)
+    register(enc, MoveCircular)
+    register(enc, MoveJoint)
+    register(enc, MovePos)
+
+    register(dec, MotionId)
+
+	var dec_task = schedule(Task("Robot decoder", () -> robot_decoder(dec)))
+
+	RobotServerInfo(server, socket_robot, enc, dec, dec_task)
+end
+export robot_start_server
+
+function robot_stop_server(server::RobotServerInfo)
+	println("Closing robot server sockets")
+	close(server.robot)
+	close(server.server)
+end
+export robot_stop_server
+
+end

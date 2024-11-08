@@ -184,19 +184,19 @@ fun PositionItem(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
-                        CoordinateDisplay(label = "X", value = position.x)
+                        CoordinateDisplay(label = "X", value = position.x.toString())
                         Spacer(modifier = Modifier.height(8.dp))
-                        CoordinateDisplay(label = "Y", value = position.y)
+                        CoordinateDisplay(label = "Y", value = position.y.toString())
                         Spacer(modifier = Modifier.height(8.dp))
-                        CoordinateDisplay(label = "Z", value = position.z)
+                        CoordinateDisplay(label = "Z", value = position.z.toString())
                     }
                     Spacer(modifier = Modifier.width(16.dp))
                     Column(modifier = Modifier.weight(1f)) {
-                        CoordinateDisplay(label = "1", value = position.axis1)
+                        CoordinateDisplay(label = "J1", value = position.j1.toString())
                         Spacer(modifier = Modifier.height(8.dp))
-                        CoordinateDisplay(label = "2", value = position.axis2)
+                        CoordinateDisplay(label = "J2", value = position.j2.toString())
                         Spacer(modifier = Modifier.height(8.dp))
-                        CoordinateDisplay(label = "3", value = position.axis3)
+                        CoordinateDisplay(label = "J3", value = position.j3.toString())
                     }
                 }
 

@@ -75,27 +75,27 @@ fun AccelerometerInputScreen(
             ) {
                 CoordinateDisplayFields(
                     label = "X",
-                    value = positionState?.x ?: "0"
+                    value = positionState?.x.toString()
                 )
                 CoordinateDisplayFields(
                     label = "Y",
-                    value = positionState?.y ?: "0"
+                    value = positionState?.y.toString()
                 )
                 CoordinateDisplayFields(
                     label = "Z",
-                    value = positionState?.z ?: "0"
+                    value = positionState?.z.toString()
                 )
                 CoordinateDisplayFields(
                     label = "1",
-                    value = positionState?.axis1 ?: "0"
+                    value = positionState?.j1.toString()
                 )
                 CoordinateDisplayFields(
                     label = "2",
-                    value = positionState?.axis2 ?: "0"
+                    value = positionState?.j2.toString()
                 )
                 CoordinateDisplayFields(
                     label = "3",
-                    value = positionState?.axis3 ?: "0"
+                    value = positionState?.j3.toString()
                 )
             }
 
