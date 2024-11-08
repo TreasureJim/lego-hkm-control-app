@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
 @Composable
 fun DisplayField(label: String, value: String) {
@@ -44,6 +45,7 @@ fun DisplayField(label: String, value: String) {
         Text(
             text = value,
             style = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onBackground),
+            fontSize = 15.sp,
             modifier = Modifier
                     .width(128.dp)
                 .padding(vertical = 8.dp)
