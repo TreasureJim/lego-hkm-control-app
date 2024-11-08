@@ -58,7 +58,7 @@ class ConnectionViewModel(private val dataStore: ConnectionDataStore) : ViewMode
         val isIpValid = validateIp(_ip.value)
         val isPortValid = validatePort(_port.value)
 
-        if (isIpValid && isPortValid) {
+        if (isIpValid && isPortValid && !_isConnected.value) {
             viewModelScope.launch {
                 NetworkManager.connectToAddress(ip.value, port.value.toInt())
                 _isConnected.value = NetworkManager.getSocket() != null

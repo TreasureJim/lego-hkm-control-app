@@ -16,6 +16,11 @@ object NetworkManager {
 
     // Method to initiate the connection on a background thread
     fun connectToAddress(address: String, port: Int) {
+        if (connectedSocket != null) {
+            println("Already connected")
+            return
+        }
+
         // Run the network code in a background thread
         Thread {
             try {
