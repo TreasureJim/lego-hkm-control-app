@@ -47,7 +47,7 @@ class JoggingViewModel(
 //                )
 //            )
 //        )
-        startUpdatingPosition(settings.commandSendHertz.value, settings.jointsensitivity.value, settings.coordsensitivity.value)
+        startUpdatingPosition(settings.commandSendHertz.value.toFloat(), settings.jointsensitivity.value, settings.coordsensitivity.value)
     }
 
     // Function to set slider values
