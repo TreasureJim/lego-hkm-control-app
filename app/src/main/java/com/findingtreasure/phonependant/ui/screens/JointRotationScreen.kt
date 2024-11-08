@@ -90,9 +90,9 @@ fun JointRotationScreen(
                     .fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-//                AxisSlider(label = "1", sliderValue = slider1Value, onValueChange = { viewModel.setSliderValue("1", it) })
-//                AxisSlider(label = "2", sliderValue = slider2Value, onValueChange = { viewModel.setSliderValue("2", it) })
-//                AxisSlider(label = "3", sliderValue = slider3Value, onValueChange = { viewModel.setSliderValue("3", it) })
+//                AxisSlider(label = "J1", sliderValue = slider1Value, onValueChange = { viewModel.setSliderValue("1", it) })
+//                AxisSlider(label = "J2", sliderValue = slider2Value, onValueChange = { viewModel.setSliderValue("2", it) })
+//                AxisSlider(label = "J3", sliderValue = slider3Value, onValueChange = { viewModel.setSliderValue("3", it) })
             }
 
             // DisplayFields for Joint Values and Coordinates in Two Columns
@@ -104,11 +104,11 @@ fun JointRotationScreen(
             ) {
                 // Column for Joint Values
                 Column(horizontalAlignment = Alignment.Start) {
-                    DisplayField(label = "1", value = positionState.j1.toString())
+                    DisplayField(label = "J1", value = positionState.j1.toString())
                     Spacer(modifier = Modifier.height(8.dp))
-                    DisplayField(label = "2", value = positionState.j2.toString())
+                    DisplayField(label = "J2", value = positionState.j2.toString())
                     Spacer(modifier = Modifier.height(8.dp))
-                    DisplayField(label = "3", value = positionState.j3.toString())
+                    DisplayField(label = "J3", value = positionState.j3.toString())
                 }
 
                 // Column for Coordinate Values

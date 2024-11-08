@@ -5,6 +5,9 @@ import com.findingtreasure.phonependant.model.Position
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.util.UUID
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+
 
 enum class SIG_ID_STRUCTS(val id: Int, val size: Int) {
     MotionId(0, 18),
@@ -15,8 +18,10 @@ enum class SIG_ID_STRUCTS(val id: Int, val size: Int) {
 }
 
 object ProtocolHandler {
-    // DECODE
+    private val _motionIdFlow = MutableSharedFlow<MotionId>(extraBufferCapacity = 1) // Emit MotionIds as they are decoded
+    val motionIdFlow: SharedFlow<MotionId> get() = _motionIdFlow
 
+    // DECODE
     fun numBytesToDecode(sigId: Int): Int {
         return when (sigId) {
             SIG_ID_STRUCTS.MotionId.id -> SIG_ID_STRUCTS.MotionId.size
@@ -42,7 +47,11 @@ object ProtocolHandler {
         val id = data.sliceArray(1..16)
         val status = data[17]
 
-        return MotionId(id, status)
+        val motionId = MotionId(id, status)
+
+        // Emit decoded motionId to flow
+        _motionIdFlow.tryEmit(motionId)
+        return motionId
     }
 
     private fun decodeRobotStatus(data: ByteArray): RobotStatus? {
