@@ -116,7 +116,7 @@ fun SettingsScreen(
         Button(
             onClick = {
                 val commandHertz = localCommandSendHertz.toIntOrNull() ?: commandSendHertz
-                viewModel.saveSettings(localJointSensitivity, commandHertz)
+                viewModel.saveSettings(localJointSensitivity, localCoordSensitivity, commandHertz)
                 onBack()
             },
             modifier = Modifier

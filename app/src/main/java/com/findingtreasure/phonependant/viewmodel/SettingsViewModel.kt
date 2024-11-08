@@ -33,11 +33,11 @@ class SettingsViewModel(private val dataStore: SettingsDataStore) : ViewModel() 
         }
     }
 
-    fun saveSettings(jointSensitivity: Float, commandSendHertz: Int) {
+    fun saveSettings(jointSensitivity: Float, coordSensitivity: Float, commandSendHertz: Int) {
         viewModelScope.launch {
             // Save both sensitivities and command hertz to DataStore
             dataStore.saveJointSensitivity(jointSensitivity)
-            dataStore.saveCoordSensitivity(coordSensitivity = _coordSensitivity.value)
+            dataStore.saveCoordSensitivity(coordSensitivity)
             dataStore.saveCommandSendHertz(commandSendHertz)
         }
     }
