@@ -21,6 +21,10 @@ fun SettingsScreen(
     viewModel: SettingsViewModel,
     onBack: () -> Unit
 ) {
+    LaunchedEffect(Unit) {
+        viewModel.loadSettings()
+    }
+
     val jointSensitivity by viewModel.jointsensitivity.collectAsState()
     val coordSensitivity by viewModel.coordsensitivity.collectAsState()
     val commandSendHertz by viewModel.commandSendHertz.collectAsState()

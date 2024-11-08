@@ -25,8 +25,11 @@ class SettingsViewModel(private val dataStore: SettingsDataStore) : ViewModel() 
     val commandSendHertz: StateFlow<Int> = _commandSendHertz
 
     init {
+        loadSettings()
+    }
+
+    fun loadSettings() {
         viewModelScope.launch {
-            // Initialize settings from DataStore or use default values
             _jointSensitivity.value = dataStore.jointSensitivity.first() ?: defaultJointSensitivity
             _coordSensitivity.value = dataStore.coordSensitivity.first() ?: defaultCoordSensitivity
             _commandSendHertz.value = dataStore.commandSendHertz.first() ?: defaultCommandSendHertz
@@ -39,6 +42,8 @@ class SettingsViewModel(private val dataStore: SettingsDataStore) : ViewModel() 
             dataStore.saveJointSensitivity(jointSensitivity)
             dataStore.saveCoordSensitivity(coordSensitivity)
             dataStore.saveCommandSendHertz(commandSendHertz)
+
+            loadSettings()
         }
     }
 }
