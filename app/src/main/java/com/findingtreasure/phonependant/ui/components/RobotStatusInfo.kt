@@ -67,7 +67,7 @@ fun RobotStatusDisplay(status: Position, addOnClick: () -> Unit) {
             Text("j1: ${status.j1}", fontSize = 16.sp)
             Text("j2: ${status.j2}", fontSize = 16.sp)
             Text("j3: ${status.j3}", fontSize = 16.sp)
-            Text("j4: ${status.j4}", fontSize = 16.sp)
+            //Text("j4: ${status.j4}", fontSize = 16.sp)
         }
 
         Spacer(modifier = Modifier.height(20.dp))
@@ -83,12 +83,12 @@ fun RobotStatusDisplay(status: Position, addOnClick: () -> Unit) {
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun PreviewRobotStatusInfo() {
-    val status = Position(
-        x = 12.5, y = 9.2, z = 3.1,
-        j1 = 45.0, j2 = 30.5, j3 = 15.2, j4 = 90.0
-    )
-    RobotStatusDisplay(status = status, {})
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun PreviewRobotStatusInfo() {
+//    val status = Position(
+//        x = 12.5, y = 9.2, z = 3.1,
+//        j1 = 45.0, j2 = 30.5, j3 = 15.2, j4 = 90.0
+//    )
+//    RobotStatusDisplay(status = status, {})
+//}

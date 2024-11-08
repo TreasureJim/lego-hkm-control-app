@@ -25,8 +25,10 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import com.findingtreasure.phonependant.datastore.SettingsDataStore
 import com.findingtreasure.phonependant.ui.screens.AccelerometerInputScreen
 import com.findingtreasure.phonependant.ui.screens.CoordinateInputScreen
+import com.findingtreasure.phonependant.viewmodel.SettingsViewModel
 
 class MainActivity : ComponentActivity() {
 	override fun onCreate(savedInstanceState: Bundle?) {
@@ -44,10 +46,16 @@ class MainActivity : ComponentActivity() {
 fun MainAppNavigation() {
 	val navController = rememberAnimatedNavController()
 	val context = LocalContext.current
-	val dataStore = remember { ConnectionDataStore(context) }
-	val viewModel = remember { ConnectionViewModel(dataStore) }
-	val positions = remember { mutableStateListOf<Position>() }
 	val scope = rememberCoroutineScope()
+
+	val connectionDataStore = remember { ConnectionDataStore(context) }
+	val connectionViewModel = remember { ConnectionViewModel(connectionDataStore) }
+
+	val settingsDataStore = remember { SettingsDataStore(context) }
+	val settingsViewModel = remember { SettingsViewModel(settingsDataStore) }
+
+	val positions = remember { mutableStateListOf<Position>() }
+
 
 	AnimatedNavHost(
 		navController = navController,
@@ -60,7 +68,7 @@ fun MainAppNavigation() {
 		// Connection Screen
 		composable("connection") {
 			ConnectionScreen(
-				viewModel = viewModel,
+				viewModel = connectionViewModel,
 				onConnect = {
 					navController.navigate("positionList")
 				}
@@ -82,15 +90,15 @@ fun MainAppNavigation() {
 						x = 0.0,
 						y = 0.0,
 						z = 0.0,
-						axis1 = 0.0,
-						axis2 = 0.0,
-						axis3 = 0.0
+						j1 = 0.0,
+						j2 = 0.0,
+						j3 = 0.0
 					)
 					positions.add(newPosition)
 					navController.navigate("jointRotation/${newPosition.id}")
 				},
 				onLogout = {
-					scope.launch { viewModel.logout() }
+					scope.launch { connectionViewModel.logout() }
 					navController.navigate("connection") {
 						popUpTo("connection") { inclusive = true }
 					}
@@ -125,7 +133,8 @@ fun MainAppNavigation() {
 					navController.navigate(screen) {
 						popUpTo("jointRotation/$positionId") { inclusive = true }
 					}
-				}
+				},
+				settings = settingsViewModel
 			)
 		}
 
@@ -156,7 +165,8 @@ fun MainAppNavigation() {
 					navController.navigate(screen) {
 						popUpTo("coordinateInput/$positionId") { inclusive = true }
 					}
-				}
+				},
+				settings = settingsViewModel
 			)
 		}
 

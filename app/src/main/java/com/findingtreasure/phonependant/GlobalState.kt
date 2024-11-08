@@ -6,5 +6,5 @@ import kotlinx.coroutines.sync.Mutex
 class GlobalState {
     val mutex = Mutex()
 
-    var currentPosition: Position = Position(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
+    //var currentPosition: Position = Position(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
 }

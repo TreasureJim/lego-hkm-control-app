@@ -18,17 +18,20 @@ import com.findingtreasure.phonependant.ui.helper.DisplayField
 import com.findingtreasure.phonependant.ui.helper.AxisSlider
 import com.findingtreasure.phonependant.viewmodel.JoggingViewModel
 import com.findingtreasure.phonependant.viewmodel.JoggingViewModelFactory
+import com.findingtreasure.phonependant.viewmodel.SettingsViewModel
 
 @Composable
 fun JointRotationScreen(
     position: Position?,
     onTabSelected: (String, Position) -> Unit,
-    onSave: (Position) -> Unit
+    onSave: (Position) -> Unit,
+    settings: SettingsViewModel
 ) {
     // Pass position and ProtocolHandler to the factory
     val viewModel: JoggingViewModel = viewModel(
         factory = JoggingViewModelFactory (
-            initialPosition = position ?: Position(0, "", 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
+            initialPosition = position ?: Position(0, "", 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
+            settings = settings,
         )
     )
 
@@ -101,11 +104,11 @@ fun JointRotationScreen(
             ) {
                 // Column for Joint Values
                 Column(horizontalAlignment = Alignment.Start) {
-                    DisplayField(label = "1", value = positionState.axis1.toString())
+                    DisplayField(label = "1", value = positionState.j1.toString())
                     Spacer(modifier = Modifier.height(8.dp))
-                    DisplayField(label = "2", value = positionState.axis2.toString())
+                    DisplayField(label = "2", value = positionState.j2.toString())
                     Spacer(modifier = Modifier.height(8.dp))
-                    DisplayField(label = "3", value = positionState.axis3.toString())
+                    DisplayField(label = "3", value = positionState.j3.toString())
                 }
 
                 // Column for Coordinate Values
