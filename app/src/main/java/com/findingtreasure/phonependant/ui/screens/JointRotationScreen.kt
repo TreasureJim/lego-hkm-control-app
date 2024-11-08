@@ -90,9 +90,9 @@ fun JointRotationScreen(
                     .fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                AxisSlider(label = "1", sliderValue = slider1Value, onValueChange = { viewModel.setSliderValue("1", it) })
-                AxisSlider(label = "2", sliderValue = slider2Value, onValueChange = { viewModel.setSliderValue("2", it) })
-                AxisSlider(label = "3", sliderValue = slider3Value, onValueChange = { viewModel.setSliderValue("3", it) })
+//                AxisSlider(label = "1", sliderValue = slider1Value, onValueChange = { viewModel.setSliderValue("1", it) })
+//                AxisSlider(label = "2", sliderValue = slider2Value, onValueChange = { viewModel.setSliderValue("2", it) })
+//                AxisSlider(label = "3", sliderValue = slider3Value, onValueChange = { viewModel.setSliderValue("3", it) })
             }
 
             // DisplayFields for Joint Values and Coordinates in Two Columns

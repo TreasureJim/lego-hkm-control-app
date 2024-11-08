@@ -89,9 +89,9 @@ fun CoordinateInputScreen(
                     .fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                AxisSlider(label = "X", sliderValue = sliderXValue, onValueChange = { viewModel.setSliderValue("X", it) })
-                AxisSlider(label = "Y", sliderValue = sliderYValue, onValueChange = { viewModel.setSliderValue("Y", it) })
-                AxisSlider(label = "Z", sliderValue = sliderZValue, onValueChange = { viewModel.setSliderValue("Z", it) })
+//                AxisSlider(label = "X", sliderValue = sliderXValue, onValueChange = { viewModel.setSliderValue("X", it) })
+//                AxisSlider(label = "Y", sliderValue = sliderYValue, onValueChange = { viewModel.setSliderValue("Y", it) })
+//                AxisSlider(label = "Z", sliderValue = sliderZValue, onValueChange = { viewModel.setSliderValue("Z", it) })
             }
 
             // DisplayFields for Joint Values and Coordinates in Two Columns

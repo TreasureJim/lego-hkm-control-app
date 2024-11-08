@@ -28,6 +28,7 @@ import androidx.compose.animation.fadeOut
 import com.findingtreasure.phonependant.datastore.SettingsDataStore
 import com.findingtreasure.phonependant.ui.screens.AccelerometerInputScreen
 import com.findingtreasure.phonependant.ui.screens.CoordinateInputScreen
+import com.findingtreasure.phonependant.ui.screens.SettingsScreen
 import com.findingtreasure.phonependant.viewmodel.SettingsViewModel
 
 class MainActivity : ComponentActivity() {
@@ -105,9 +106,18 @@ fun MainAppNavigation() {
 				},
 
 				onTrackPath = {},
-				onSettings = {}
+				onSettings = { navController.navigate("settings") }
 			)
 		}
+
+		// Add new composable for settings
+		composable("settings") {
+			SettingsScreen(
+				viewModel = settingsViewModel,
+				onBack = { navController.popBackStack() }
+			)
+		}
+
 
 		// Joint Rotation Screen
 		composable(
