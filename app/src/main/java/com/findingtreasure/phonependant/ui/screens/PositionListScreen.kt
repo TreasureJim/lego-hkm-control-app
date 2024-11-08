@@ -20,83 +20,111 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.findingtreasure.phonependant.model.Position
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
+import androidx.compose.ui.text.font.FontWeight
 
 @Composable
 fun PositionListScreen(
     positionList: List<Position>,
     onEditPosition: (Position) -> Unit,
     onAddNewPosition: () -> Unit,
+    onTrackPath: () -> Unit,
     onLogout: () -> Unit
 ) {
-    LazyColumn(
+    // Wrap everything inside a Column
+    Column(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
-            .padding(16.dp)
     ) {
-        item {
-            Box (
-                modifier = Modifier.fillMaxWidth(),
-                contentAlignment = Alignment.Center
-            ) {
-                // Title "Positions" centered horizontally
-                Text(
-                    text = "Positions",
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier
-                        .padding(top = 24.dp, bottom=16.dp),
-                    textAlign = TextAlign.Center
-                )
-
-                // Logout button aligned to the top-right corner
-                IconButton (
-                    onClick = onLogout,
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(top = 30.dp)
+        // LazyColumn for positions
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+                .weight(1f) // This makes the LazyColumn take up available space
+        ) {
+            item {
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ExitToApp,
-                        contentDescription = "Log out",
-                        tint = MaterialTheme.colorScheme.error
+                    // Title "Positions" centered horizontally
+                    Text(
+                        text = "Positions",
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier
+                            .padding(top = 24.dp, bottom = 16.dp),
+                        textAlign = TextAlign.Center
+                    )
+
+                    // Logout button aligned to the top-right corner
+                    IconButton(
+                        onClick = onLogout,
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .padding(top = 30.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ExitToApp,
+                            contentDescription = "Log out",
+                            tint = MaterialTheme.colorScheme.error
+                        )
+                    }
+                }
+            }
+
+            // List of positions
+            items(positionList.size) { index ->
+                val position = positionList[index]
+                var expanded by remember { mutableStateOf(false) }
+                PositionItem(
+                    position = position,
+                    expanded = expanded,
+                    onExpandClick = { expanded = !expanded },
+                    onEditClick = { onEditPosition(position) }
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+
+            item {
+                // Button to add new position
+                Button(
+                    onClick = onAddNewPosition,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text(
+                        text = "+ New position",
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        style = MaterialTheme.typography.labelLarge
                     )
                 }
             }
         }
 
-        // List of positions
-        items(positionList.size) { index ->
-            val position = positionList[index]
-            var expanded by remember { mutableStateOf(false) }
-            PositionItem(
-                position = position,
-                expanded = expanded,
-                onExpandClick = { expanded = !expanded },
-                onEditClick = { onEditPosition(position) }
+        // Button fixed at the bottom of the screen
+        Button(
+            onClick = onTrackPath,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+            shape = RoundedCornerShape(8.dp)
+        ) {
+            Text(
+                text = "Track Path",
+                color = MaterialTheme.colorScheme.onPrimary,
+                style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold)
             )
-            Spacer(modifier = Modifier.height(8.dp))
-        }
-
-        item {
-            // Button to add new position aligned at the bottom
-            Button(
-                onClick = onAddNewPosition,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
-                shape = RoundedCornerShape(8.dp)
-            ) {
-                Text(
-                    text = "+ New position",
-                    color = MaterialTheme.colorScheme.onPrimary,
-                    style = MaterialTheme.typography.labelLarge
-                )
-            }
         }
     }
 }
+
+
 
 @Composable
 fun PositionItem(

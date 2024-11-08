@@ -93,7 +93,9 @@ fun MainAppNavigation() {
 					navController.navigate("connection") {
 						popUpTo("connection") { inclusive = true }
 					}
-				}
+				},
+
+				onTrackPath = {}
 			)
 		}
 
