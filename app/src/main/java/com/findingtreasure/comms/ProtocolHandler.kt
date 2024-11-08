@@ -11,7 +11,8 @@ enum class SIG_ID_STRUCTS(val id: Int, val size: Int) {
     RobotStatus(3, 56),
     MoveJog(1, 73),
     RobotRequestStatus(2, 1),
-    MoveLinear(4, 73)
+    MoveLinear(4, 73),
+    MovePos(5, 73)
 }
 
 object ProtocolHandler {
@@ -92,6 +93,16 @@ object ProtocolHandler {
         buffer.put(moveLinear.motionId.copyOf(16)) // Ensure motionId is exactly 16 bytes
         buffer.put(
             encodeRobTarget(moveLinear.target)
+        )
+        return buffer.array()
+    }
+
+    fun encodeMovePos(movePos: MovePos) : ByteArray {
+        val buffer = ByteBuffer.allocate(73).order(ByteOrder.LITTLE_ENDIAN)
+        buffer.put(0x04) // s_id for MoveJog
+        buffer.put(movePos.motionId.copyOf(16)) // Ensure motionId is exactly 16 bytes
+        buffer.put(
+            encodeRobTarget(movePos.target)
         )
         return buffer.array()
     }

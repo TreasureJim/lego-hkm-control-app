@@ -12,6 +12,8 @@ enum S_ID {
   S_ID_MOVEJOG,
   S_ID_ROBOTREQUESTSTATUS,
   S_ID_ROBOTSTATUS,
+  S_ID_MOVELINEAR,
+  S_ID_MOVEPOS
 };
 
 void send_message(int sockfd, uint8_t* buffer, size_t length) {
@@ -50,6 +52,28 @@ int app_decode(int app_fd) {
 	  struct robotrequeststatus rqs;
 	  robot_send_robotrequeststatus((struct robotrequeststatus*)&rqs);
 	  break;
+
+    case S_ID_MOVELINEAR:
+        char* buf = malloc(sizeof(struct movelinear));
+        if (receive_message(app_fd, buf, sizeof(struct movelinear)) < 0) {
+            return -1;
+        }
+
+        robot_send_movelinear((struct movelinear*)buf);
+
+        free(buf);
+        break;
+
+    case S_ID_MOVEPOS:
+        char* buf = malloc(sizeof(struct movepos));
+        if (receive_message(app_fd, buf, sizeof(struct movepos)) < 0) {
+            return -1;
+        }
+
+        robot_send_movepos((struct movepos*)buf);
+
+        free(buf);
+        break;
 
 	default:
 	  fprintf(stderr, "[APP ERROR] Decoded an unknown sig_id: %d\n", sig_id);
