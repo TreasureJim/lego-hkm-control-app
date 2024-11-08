@@ -7,9 +7,11 @@ import com.findingtreasure.comms.NetworkManager
 import com.findingtreasure.comms.ProtocolHandler
 import com.findingtreasure.comms.RobotStatus
 import com.findingtreasure.phonependant.model.Position
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 class JoggingViewModel(
@@ -60,8 +62,8 @@ class JoggingViewModel(
 
     // Coroutine to update position every 5 seconds
     private fun startUpdatingPosition(commandSendHertz: Int, sensitivity: Float) {
-        viewModelScope.launch {
-            while (true) {
+        viewModelScope.launch(Dispatchers.IO) {
+            while (isActive) {
                 if (_slider1Value.value != 0f || _slider2Value.value != 0f || _slider3Value.value != 0f ||
                     _sliderXValue.value != 0f || _sliderYValue.value != 0f || _sliderZValue.value != 0f) {
                     // Send MoveJog command with current slider values
@@ -79,22 +81,21 @@ class JoggingViewModel(
                         ProtocolHandler.encodeMoveJog(jog)
                     )
 
-                    /* TO IMPLEMENT: fetch robot status from global variable */
-                    val updatedStatus = RobotStatus(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-
-                    if (updatedStatus != null) {
-                        _positionState.value = _positionState.value.copy(
-                            x = updatedStatus.x,
-                            y = updatedStatus.y,
-                            z = updatedStatus.z,
-                            j1 = updatedStatus.j1,
-                            j2 = updatedStatus.j2,
-                            j3 = updatedStatus.j3
-                        )
-                    }
+//                    /* TO IMPLEMENT: fetch robot status from global variable */
+//                    val updatedStatus = RobotStatus(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
+//
+//                    if (updatedStatus != null) {
+//                        _positionState.value = _positionState.value.copy(
+//                            x = updatedStatus.x,
+//                            y = updatedStatus.y,
+//                            z = updatedStatus.z,
+//                            j1 = updatedStatus.j1,
+//                            j2 = updatedStatus.j2,
+//                            j3 = updatedStatus.j3
+//                        )
+//                    }
                 }
 
-                // Delay for 5 seconds
                 delay((1 / commandSendHertz * 1000).toLong())
             }
         }

@@ -65,8 +65,8 @@ object ProtocolHandler {
     // ENCODE
 
     fun encodeMoveJog(moveJog: MoveJog): ByteArray {
-        val buffer = ByteBuffer.allocate(65).order(ByteOrder.BIG_ENDIAN)
-        buffer.put(1) // s_id for MoveJog
+        val buffer = ByteBuffer.allocate(73).order(ByteOrder.BIG_ENDIAN)
+        buffer.put(0x01) // s_id for MoveJog
         buffer.put(moveJog.motionId.copyOf(16)) // Ensure motionId is exactly 16 bytes
         buffer.putDouble(moveJog.x)
         buffer.putDouble(moveJog.y)

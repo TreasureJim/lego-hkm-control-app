@@ -22,7 +22,7 @@ class SettingsDataStore(private val context: Context) {
     }
 
     val commandSendHertz: Flow<Int> = context.settingsDataStore.data.map { preferences ->
-        preferences[COMMAND_SEND_HERTZ_KEY] ?: 100
+        preferences[COMMAND_SEND_HERTZ_KEY] ?: 5
     }
 
     // Function to save sensitivity preference
