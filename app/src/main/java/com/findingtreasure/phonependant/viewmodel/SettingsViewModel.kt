@@ -9,28 +9,35 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class SettingsViewModel(private val dataStore: SettingsDataStore) : ViewModel() {
-    private val _jointsensitivity = MutableStateFlow((1f / 100f * 3.14f / 30f))
-    val jointsensitivity: StateFlow<Float> = _jointsensitivity
 
-    private val _coordsensitivity = MutableStateFlow((1f / 100f * 5))
-    val coordsensitivity: StateFlow<Float> = _coordsensitivity
+    // Default values
+    private val defaultJointSensitivity = (1f / 100f * 3.14f / 30f)
+    private val defaultCoordSensitivity = (1f / 100f * 5)
+    private val defaultCommandSendHertz = 3
 
-    private val _commandSendHertz = MutableStateFlow(3)
+    private val _jointSensitivity = MutableStateFlow(defaultJointSensitivity)
+    val jointsensitivity: StateFlow<Float> = _jointSensitivity
+
+    private val _coordSensitivity = MutableStateFlow(defaultCoordSensitivity)
+    val coordsensitivity: StateFlow<Float> = _coordSensitivity
+
+    private val _commandSendHertz = MutableStateFlow(defaultCommandSendHertz)
     val commandSendHertz: StateFlow<Int> = _commandSendHertz
 
     init {
         viewModelScope.launch {
-//            _jointsensitivity.value = (1f / 100f * 3.14f / 10f)
-//            _coordsensitivity.value = (1f / 100f * 5)
-//            _jointsensitivity.value = dataStore.jointSensitivity.first()
-//            _coordsensitivity.value = dataStore.coordSensitivity.first()
-//            _commandSendHertz.value = dataStore.commandSendHertz.first()
+            // Initialize settings from DataStore or use default values
+            _jointSensitivity.value = dataStore.jointSensitivity.first() ?: defaultJointSensitivity
+            _coordSensitivity.value = dataStore.coordSensitivity.first() ?: defaultCoordSensitivity
+            _commandSendHertz.value = dataStore.commandSendHertz.first() ?: defaultCommandSendHertz
         }
     }
 
-    fun saveSettings(sensitivity: Float, commandSendHertz: Int) {
+    fun saveSettings(jointSensitivity: Float, commandSendHertz: Int) {
         viewModelScope.launch {
-//            dataStore.saveSensitivity(sensitivity)
+            // Save both sensitivities and command hertz to DataStore
+            dataStore.saveJointSensitivity(jointSensitivity)
+            dataStore.saveCoordSensitivity(coordSensitivity = _coordSensitivity.value)
             dataStore.saveCommandSendHertz(commandSendHertz)
         }
     }
