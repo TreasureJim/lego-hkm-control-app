@@ -8,7 +8,10 @@ import java.util.UUID
 
 enum class SIG_ID_STRUCTS(val id: Int, val size: Int) {
     MotionId(0, 18),
-    RobotStatus(3, 42)
+    MoveJog(1, 73),
+    RobotRequestStatus(2, 1),
+    RobotStatus(3, 42),
+    MoveLinear(4, 73)
 }
 
 object ProtocolHandler {
@@ -80,6 +83,28 @@ object ProtocolHandler {
 
     fun encodeRobotRequestStatus(): ByteArray {
         return byteArrayOf(0x02) // s_id for RobotRequestStatus
+    }
+
+    fun encodeMoveLinear(moveLinear: MoveLinear) : ByteArray {
+        val buffer = ByteBuffer.allocate(73).order(ByteOrder.BIG_ENDIAN)
+        buffer.put(0x04) // s_id for MoveJog
+        buffer.put(moveLinear.motionId.copyOf(16)) // Ensure motionId is exactly 16 bytes
+        buffer.put(
+            encodeRobTarget(moveLinear.target)
+        )
+        return buffer.array()
+    }
+
+    private fun encodeRobTarget(robTarget: RobTarget) : ByteArray {
+        val buffer = ByteBuffer.allocate(73).order(ByteOrder.BIG_ENDIAN)
+        buffer.putDouble(robTarget.x)
+        buffer.putDouble(robTarget.y)
+        buffer.putDouble(robTarget.z)
+        buffer.putDouble(robTarget.j4)
+        buffer.putDouble(robTarget.a)
+        buffer.putDouble(robTarget.b)
+        buffer.putDouble(robTarget.c)
+        return buffer.array()
     }
 
     // HELPER

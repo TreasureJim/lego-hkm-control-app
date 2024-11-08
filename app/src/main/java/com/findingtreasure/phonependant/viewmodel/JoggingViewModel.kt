@@ -1,15 +1,13 @@
 package com.findingtreasure.phonependant.viewmodel
 
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableStateMapOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.findingtreasure.comms.MoveJog
+import com.findingtreasure.comms.MoveLinear
 import com.findingtreasure.comms.NetworkManager
 import com.findingtreasure.comms.ProtocolHandler
 import com.findingtreasure.comms.RobotStatus
+import com.findingtreasure.comms.RobTarget
 import com.findingtreasure.phonependant.model.Position
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -35,8 +33,23 @@ class JoggingViewModel(
     val sliderZValue = mutableFloatStateOf(0f)
 
     init {
-        /* TO IMPLEMENT: move point to point to initialPosition */
-        startUpdatingPosition(settings.commandSendHertz.value, settings.jointsensitivity.value, settings.coordsensitivity.value)
+        NetworkManager.sendData(
+            ProtocolHandler.encodeMoveLinear(
+                MoveLinear(
+                    motionId = ProtocolHandler.generateMotionId(),
+                    target = RobTarget(
+                        x = initialPosition.x,
+                        y = initialPosition.y,
+                        z = initialPosition.z,
+                        j4 = 0.0,
+                        a = 0.0,
+                        b = 0.0,
+                        c = 0.0
+                    )
+                )
+            )
+        )
+        startUpdatingPosition(settings.commandSendHertz.value, settings.sensitivity.value)
     }
 
     // Function to set slider values
