@@ -46,6 +46,8 @@ void robot_decode(int robot_socket) {
 
   // register encoder types
   chan_enc_register_movejog(encoder);
+  chan_enc_register_movelinear(encoder);
+  chan_enc_register_movepos(encoder);
   chan_enc_register_robotrequeststatus(encoder);
 
   // register decoder types
