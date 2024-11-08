@@ -13,12 +13,17 @@ val Context.settingsDataStore: androidx.datastore.core.DataStore<androidx.datast
 
 class SettingsDataStore(private val context: Context) {
 
-    private val SENSITIVITY_KEY = floatPreferencesKey("sensitivity")
+    private val JOINTSENSITIVITY_KEY = floatPreferencesKey("jointsensitivity")
+    private val COORDSENSITIVITY_KEY = floatPreferencesKey("coordsensitivity")
     private val COMMAND_SEND_HERTZ_KEY = intPreferencesKey("command_send_hertz")
 
     // Flow to read preferences
-    val sensitivity: Flow<Float> = context.settingsDataStore.data.map { preferences ->
-        preferences[SENSITIVITY_KEY] ?: 1f
+    val jointSensitivity: Flow<Float> = context.settingsDataStore.data.map { preferences ->
+        preferences[JOINTSENSITIVITY_KEY] ?: (1f / 100f * 3.14f / 10f)
+    }
+
+    val coordSensitivity: Flow<Float> = context.settingsDataStore.data.map { preferences ->
+        preferences[COORDSENSITIVITY_KEY] ?: (1f / 100f * 5)
     }
 
     val commandSendHertz: Flow<Int> = context.settingsDataStore.data.map { preferences ->
@@ -26,12 +31,12 @@ class SettingsDataStore(private val context: Context) {
     }
 
     // Function to save sensitivity preference
-    suspend fun saveSensitivity(newSensitivity: Float) {
-        context.settingsDataStore.edit { preferences ->
-            preferences[SENSITIVITY_KEY] = newSensitivity
-        }
-    }
-
+//    suspend fun saveSensitivity(newSensitivity: Float) {
+//        context.settingsDataStore.edit { preferences ->
+//            preferences[SENSITIVITY_KEY] = newSensitivity
+//        }
+//    }
+//
     // Function to save commandSendHertz preference
     suspend fun saveCommandSendHertz(newHertz: Int) {
         context.settingsDataStore.edit { preferences ->

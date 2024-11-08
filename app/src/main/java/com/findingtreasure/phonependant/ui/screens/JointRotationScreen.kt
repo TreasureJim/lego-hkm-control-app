@@ -36,9 +36,9 @@ fun JointRotationScreen(
     )
 
     val positionState by viewModel.positionState.collectAsState()
-    val slider1Value by viewModel.slider1Value.collectAsState()
-    val slider2Value by viewModel.slider2Value.collectAsState()
-    val slider3Value by viewModel.slider3Value.collectAsState()
+    val slider1Value = viewModel.slider1Value
+    val slider2Value = viewModel.slider2Value
+    val slider3Value = viewModel.slider3Value
 
     // Main container
     Column(

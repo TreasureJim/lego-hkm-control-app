@@ -36,9 +36,9 @@ fun CoordinateInputScreen(
     )
 
     val positionState by viewModel.positionState.collectAsState()
-    val sliderXValue by viewModel.sliderXValue.collectAsState()
-    val sliderYValue by viewModel.sliderYValue.collectAsState()
-    val sliderZValue by viewModel.sliderZValue.collectAsState()
+    val sliderXValue = viewModel.sliderXValue
+    val sliderYValue = viewModel.sliderYValue
+    val sliderZValue = viewModel.sliderZValue
 
     Column(
         modifier = Modifier

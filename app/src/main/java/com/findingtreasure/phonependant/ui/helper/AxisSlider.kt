@@ -16,6 +16,7 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -28,10 +29,11 @@ import androidx.compose.ui.layout.layout
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
+import com.findingtreasure.phonependant.SliderSnapRelease
 import kotlin.math.abs
 
 @Composable
-fun AxisSlider(label: String, sliderValue: Float, onValueChange: (Float) -> Unit) {
+fun AxisSlider(label: String, sliderValue: MutableState<Float>, onValueChange: (Float) -> Unit) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.padding(8.dp)
@@ -52,70 +54,6 @@ fun AxisSlider(label: String, sliderValue: Float, onValueChange: (Float) -> Unit
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier
-                .width(50.dp)
-                .height(280.dp)
-        ) {
-            // Draw the slider behind the orange rectangles
-            Slider(
-                value = sliderValue,
-                onValueChange = onValueChange,
-                valueRange = -100f..100f,
-                modifier = Modifier
-                    .graphicsLayer {
-                        rotationZ = 270f
-                        transformOrigin = TransformOrigin(0f, 0f)
-                    }
-                    .layout { measurable, constraints ->
-                        val placeable = measurable.measure(
-                            Constraints(
-                                minWidth = constraints.minHeight,
-                                maxWidth = constraints.maxHeight,
-                                minHeight = constraints.minWidth,
-                                maxHeight = constraints.maxHeight,
-                            )
-                        )
-                        layout(placeable.height, placeable.width) {
-                            placeable.place(-placeable.width, 0)
-                        }
-                    }
-                    .fillMaxHeight()
-                    .height(50.dp),
-                colors = SliderDefaults.colors(
-                    thumbColor = MaterialTheme.colorScheme.primary,
-                    activeTrackColor = Color.Transparent,
-                    inactiveTrackColor = MaterialTheme.colorScheme.surface
-                ),
-            )
-
-            // Draw the orange progress bar on top of the slider
-            val rectColor = MaterialTheme.colorScheme.primary
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .drawBehind {
-                        val sliderHeight = size.height
-                        val centerY = sliderHeight / 2
-                        val thumbPositionY = centerY - (sliderValue / 100f) * centerY
-
-                        // Draw the orange bar up to the thumb position
-                        if (sliderValue > 0f) {
-                            drawRect(
-                                color = rectColor,
-                                topLeft = Offset(center.x - 4.dp.toPx(), thumbPositionY),
-                                size = Size(8.dp.toPx(), centerY - thumbPositionY)
-                            )
-                        } else if (sliderValue < 0f) {
-                            drawRect(
-                                color = rectColor,
-                                topLeft = Offset(center.x - 4.dp.toPx(), centerY),
-                                size = Size(8.dp.toPx(), abs(thumbPositionY - centerY))
-                            )
-                        }
-                    }
-            )
-        }
+        SliderSnapRelease(sliderValue, -100f..100f, 0f)
     }
 }

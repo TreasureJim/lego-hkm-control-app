@@ -9,22 +9,28 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class SettingsViewModel(private val dataStore: SettingsDataStore) : ViewModel() {
-    private val _sensitivity = MutableStateFlow(1f)
-    val sensitivity: StateFlow<Float> = _sensitivity
+    private val _jointsensitivity = MutableStateFlow(1f)
+    val jointsensitivity: StateFlow<Float> = _jointsensitivity
+
+    private val _coordsensitivity = MutableStateFlow(1f)
+    val coordsensitivity: StateFlow<Float> = _coordsensitivity
 
     private val _commandSendHertz = MutableStateFlow(100)
     val commandSendHertz: StateFlow<Int> = _commandSendHertz
 
     init {
         viewModelScope.launch {
-            _sensitivity.value = dataStore.sensitivity.first()
+            _jointsensitivity.value = (1f / 100f * 3.14f / 10f)
+            _coordsensitivity.value = (1f / 100f * 5)
+//            _jointsensitivity.value = dataStore.jointSensitivity.first()
+//            _coordsensitivity.value = dataStore.coordSensitivity.first()
             _commandSendHertz.value = dataStore.commandSendHertz.first()
         }
     }
 
     fun saveSettings(sensitivity: Float, commandSendHertz: Int) {
         viewModelScope.launch {
-            dataStore.saveSensitivity(sensitivity)
+//            dataStore.saveSensitivity(sensitivity)
             dataStore.saveCommandSendHertz(commandSendHertz)
         }
     }
