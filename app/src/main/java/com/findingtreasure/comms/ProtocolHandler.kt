@@ -48,7 +48,7 @@ object ProtocolHandler {
     private fun decodeRobotStatus(data: ByteArray): RobotStatus? {
         if (data.size != SIG_ID_STRUCTS.RobotStatus.size) return null
 
-        val buffer = ByteBuffer.wrap(data).order(ByteOrder.BIG_ENDIAN)
+        val buffer = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN)
 
         val x = buffer.double
         val y = buffer.double
@@ -97,7 +97,7 @@ object ProtocolHandler {
     }
 
     private fun encodeRobTarget(robTarget: RobTarget) : ByteArray {
-        val buffer = ByteBuffer.allocate(73).order(ByteOrder.BIG_ENDIAN)
+        val buffer = ByteBuffer.allocate(73).order(ByteOrder.LITTLE_ENDIAN)
         buffer.putDouble(robTarget.x)
         buffer.putDouble(robTarget.y)
         buffer.putDouble(robTarget.z)
