@@ -13,7 +13,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.findingtreasure.phonependant._currentPostion
 import com.findingtreasure.phonependant.model.Position
+import com.findingtreasure.phonependant.ui.components.RobotStatusDisplay
 import com.findingtreasure.phonependant.ui.helper.DisplayField
 import com.findingtreasure.phonependant.ui.helper.AxisSlider
 import com.findingtreasure.phonependant.viewmodel.JoggingViewModel
@@ -35,7 +37,7 @@ fun JointRotationScreen(
         )
     )
 
-    val positionState by viewModel.positionState.collectAsState()
+    val positionState by _currentPostion.collectAsState()
     val slider1Value = viewModel.slider1Value
     val slider2Value = viewModel.slider2Value
     val slider3Value = viewModel.slider3Value
@@ -96,30 +98,7 @@ fun JointRotationScreen(
             }
 
             // DisplayFields for Joint Values and Coordinates in Two Columns
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
-                // Column for Joint Values
-                Column(horizontalAlignment = Alignment.Start) {
-                    DisplayField(label = "1", value = positionState.j1.toString())
-                    Spacer(modifier = Modifier.height(8.dp))
-                    DisplayField(label = "2", value = positionState.j2.toString())
-                    Spacer(modifier = Modifier.height(8.dp))
-                    DisplayField(label = "3", value = positionState.j3.toString())
-                }
-
-                // Column for Coordinate Values
-                Column(horizontalAlignment = Alignment.Start) {
-                    DisplayField(label = "X", value = positionState.x.toString())
-                    Spacer(modifier = Modifier.height(8.dp))
-                    DisplayField(label = "Y", value = positionState.y.toString())
-                    Spacer(modifier = Modifier.height(8.dp))
-                    DisplayField(label = "Z", value = positionState.z.toString())
-                }
-            }
+            RobotStatusDisplay(_currentPostion.collectAsState().value)
 
             Spacer(modifier = Modifier.weight(1f))  // Spacer to push content upwards
 
@@ -135,7 +114,7 @@ fun JointRotationScreen(
                 BasicTextField(
                     value = positionState.name,
                     onValueChange = { newName ->
-                        viewModel.setName(newName)
+//                        viewModel.setName(newName)
                     },
                     textStyle = MaterialTheme.typography.bodyLarge.copy(color = Color.White),
                     modifier = Modifier

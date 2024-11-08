@@ -21,10 +21,6 @@ class JoggingViewModel(
     initialPosition: Position,
     settings: SettingsViewModel
 ) : ViewModel() {
-    // Mutable state for UI to observe position updates
-    private val _positionState = MutableStateFlow(initialPosition)
-    val positionState: StateFlow<Position> get() = _positionState
-
     // Sliders for joint rotation
     val slider1Value = mutableFloatStateOf(0f)
     val slider2Value = mutableFloatStateOf(0f)
@@ -34,6 +30,7 @@ class JoggingViewModel(
     val sliderZValue = mutableFloatStateOf(0f)
 
     init {
+        // TODO
 //        NetworkManager.sendData(
 //            ProtocolHandler.encodeMoveLinear(
 //                MoveLinear(
@@ -66,11 +63,11 @@ class JoggingViewModel(
     }
 
     // Function to set name
-    fun setName(value: String) {
-        _positionState.value = _positionState.value.copy(
-            name = value
-        )
-    }
+//    fun setName(value: String) {
+//        _positionState.value = _positionState.value.copy(
+//            name = value
+//        )
+//    }
 
     // Coroutine to update position every 5 seconds
     private fun startUpdatingPosition(commandSendHertz: Float, jointSensitivity: Float, coordSensitivity: Float) {
@@ -92,20 +89,6 @@ class JoggingViewModel(
                     NetworkManager.sendData(
                         ProtocolHandler.encodeMoveJog(jog)
                     )
-
-//                    /* TO IMPLEMENT: fetch robot status from global variable */
-//                    val updatedStatus = RobotStatus(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-//
-//                    if (updatedStatus != null) {
-//                        _positionState.value = _positionState.value.copy(
-//                            x = updatedStatus.x,
-//                            y = updatedStatus.y,
-//                            z = updatedStatus.z,
-//                            j1 = updatedStatus.j1,
-//                            j2 = updatedStatus.j2,
-//                            j3 = updatedStatus.j3
-//                        )
-//                    }
                 }
 
                 delay((1 / commandSendHertz * 1000).toLong())
