@@ -20,6 +20,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.findingtreasure.phonependant.model.Position
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.ui.text.font.FontWeight
 
 @Composable
@@ -28,7 +29,8 @@ fun PositionListScreen(
     onEditPosition: (Position) -> Unit,
     onAddNewPosition: () -> Unit,
     onTrackPath: () -> Unit,
-    onLogout: () -> Unit
+    onLogout: () -> Unit,
+    onSettings: () -> Unit
 ) {
     // Wrap everything inside a Column
     Column(
@@ -69,6 +71,19 @@ fun PositionListScreen(
                             imageVector = Icons.AutoMirrored.Filled.ExitToApp,
                             contentDescription = "Log out",
                             tint = MaterialTheme.colorScheme.error
+                        )
+                    }
+
+                    IconButton(
+                        onClick = onSettings,
+                        modifier = Modifier
+                            .align(Alignment.TopStart)
+                            .padding(top = 30.dp, start = 5.dp) // Add padding to give space from the left
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Settings, // You can choose any settings icon you want
+                            contentDescription = "Settings",
+                            tint = MaterialTheme.colorScheme.secondary
                         )
                     }
                 }

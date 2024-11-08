@@ -104,7 +104,8 @@ fun MainAppNavigation() {
 					}
 				},
 
-				onTrackPath = {}
+				onTrackPath = {},
+				onSettings = {}
 			)
 		}
 
