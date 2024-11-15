@@ -1,6 +1,6 @@
 package com.findingtreasure.phonependant
 
-import com.findingtreasure.phonependant.model.Position
+import com.findingtreasure.phonependant.model.Status
 import kotlinx.coroutines.flow.MutableStateFlow
 
-val _currentPostion = MutableStateFlow(Position(0, "Default Position", 0.0, 0.0, 0.0, 0.0, 0.0, 0.0))
+val _currentPostion = MutableStateFlow(Status(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0))

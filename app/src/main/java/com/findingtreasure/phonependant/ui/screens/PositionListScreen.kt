@@ -32,7 +32,6 @@ fun PositionListScreen(
     positionList: List<Position>,
     onEditPosition: (Position) -> Unit,
     onAddNewPosition: () -> Unit,
-    onTrackPath: () -> Unit,
     onLogout: () -> Unit,
     onSettings: () -> Unit
 ) {
@@ -207,19 +206,19 @@ fun PositionItem(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
-                        CoordinateDisplay(label = "X", value = position.x.toString())
+                        CoordinateDisplay(label = "X", value = position.status.x.toString())
                         Spacer(modifier = Modifier.height(8.dp))
-                        CoordinateDisplay(label = "Y", value = position.y.toString())
+                        CoordinateDisplay(label = "Y", value = position.status.y.toString())
                         Spacer(modifier = Modifier.height(8.dp))
-                        CoordinateDisplay(label = "Z", value = position.z.toString())
+                        CoordinateDisplay(label = "Z", value = position.status.z.toString())
                     }
                     Spacer(modifier = Modifier.width(16.dp))
                     Column(modifier = Modifier.weight(1f)) {
-                        CoordinateDisplay(label = "J1", value = position.j1.toString())
+                        CoordinateDisplay(label = "J1", value = position.status.j1.toString())
                         Spacer(modifier = Modifier.height(8.dp))
-                        CoordinateDisplay(label = "J2", value = position.j2.toString())
+                        CoordinateDisplay(label = "J2", value = position.status.j2.toString())
                         Spacer(modifier = Modifier.height(8.dp))
-                        CoordinateDisplay(label = "J3", value = position.j3.toString())
+                        CoordinateDisplay(label = "J3", value = position.status.j3.toString())
                     }
                 }
 

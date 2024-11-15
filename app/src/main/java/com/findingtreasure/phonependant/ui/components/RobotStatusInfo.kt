@@ -26,6 +26,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.findingtreasure.phonependant.model.Position
+import com.findingtreasure.phonependant.model.Status
 import com.findingtreasure.phonependant.ui.helper.DisplayField
 
 fun formatValue(value: Double, decimalPlaces: Int = 2): String {
@@ -33,7 +34,7 @@ fun formatValue(value: Double, decimalPlaces: Int = 2): String {
 }
 
 @Composable
-fun RobotStatusDisplay(positionState: Position) {
+fun RobotStatusDisplay(robotStatus: Status) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -47,22 +48,22 @@ fun RobotStatusDisplay(positionState: Position) {
         ) {
             // Column for Joint Values
             Column(horizontalAlignment = Alignment.Start) {
-                DisplayField(label = "1", value = formatValue(positionState.j1))
+                DisplayField(label = "J1", value = formatValue(robotStatus.j1))
                 Spacer(modifier = Modifier.height(8.dp))
-                DisplayField(label = "2", value = formatValue(positionState.j2))
+                DisplayField(label = "J2", value = formatValue(robotStatus.j2))
                 Spacer(modifier = Modifier.height(8.dp))
-                DisplayField(label = "3", value = formatValue(positionState.j3))
+                DisplayField(label = "J3", value = formatValue(robotStatus.j3))
             }
 
             Spacer(modifier = Modifier.height(16.dp))  // Extra space between columns
 
             // Column for Coordinate Values
             Column(horizontalAlignment = Alignment.Start) {
-                DisplayField(label = "X", value = formatValue(positionState.x))
+                DisplayField(label = "X", value = formatValue(robotStatus.x))
                 Spacer(modifier = Modifier.height(8.dp))
-                DisplayField(label = "Y", value = formatValue(positionState.y))
+                DisplayField(label = "Y", value = formatValue(robotStatus.y))
                 Spacer(modifier = Modifier.height(8.dp))
-                DisplayField(label = "Z", value = formatValue(positionState.z))
+                DisplayField(label = "Z", value = formatValue(robotStatus.z))
             }
         }
     }
@@ -71,10 +72,9 @@ fun RobotStatusDisplay(positionState: Position) {
 @Preview(showBackground = true)
 @Composable
 fun PreviewRobotStatusInfo() {
-    val status = Position(
-        1, "Example Position",
+    val status = Status(
         x = 12.5, y = 9.2, z = 3.1,
-        j1 = 45.0, j2 = 30.5, j3 = 15.2
+        j1 = 45.0, j2 = 30.5, j3 = 15.2, j4 = 0.0
     )
     RobotStatusDisplay(status)
 }

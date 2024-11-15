@@ -1,6 +1,7 @@
 package com.findingtreasure.phonependant.viewmodel
 
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.findingtreasure.comms.MoveJog
@@ -10,6 +11,7 @@ import com.findingtreasure.comms.ProtocolHandler
 import com.findingtreasure.comms.RobotStatus
 import com.findingtreasure.comms.RobTarget
 import com.findingtreasure.phonependant.model.Position
+import com.findingtreasure.phonependant.model.Status
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -28,6 +30,7 @@ class JoggingViewModel(
     val sliderXValue = mutableFloatStateOf(0f)
     val sliderYValue = mutableFloatStateOf(0f)
     val sliderZValue = mutableFloatStateOf(0f)
+    val positionState = mutableStateOf(initialPosition)
 
     init {
         // TODO
@@ -50,6 +53,16 @@ class JoggingViewModel(
         startUpdatingPosition(settings.commandSendHertz.value.toFloat(), settings.jointsensitivity.value, settings.coordsensitivity.value)
     }
 
+    // Function to set name
+    fun setName(newName: String) {
+        positionState.value = positionState.value.copy(name = newName)
+    }
+
+    // Function to update position
+    fun updatePosition(status: Status) {
+        positionState.value = positionState.value.copy(status = status)
+    }
+
     // Function to set slider values
     fun setSliderValue(sliderNumber: String, value: Float ) {
         when (sliderNumber) {
@@ -62,14 +75,7 @@ class JoggingViewModel(
         }
     }
 
-    // Function to set name
-//    fun setName(value: String) {
-//        _positionState.value = _positionState.value.copy(
-//            name = value
-//        )
-//    }
-
-    // Coroutine to update position every 5 seconds
+    // Coroutine to update position
     private fun startUpdatingPosition(commandSendHertz: Float, jointSensitivity: Float, coordSensitivity: Float) {
         viewModelScope.launch(Dispatchers.IO) {
             while (isActive) {

@@ -25,7 +25,9 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.runtime.collectAsState
 import com.findingtreasure.phonependant.datastore.SettingsDataStore
+import com.findingtreasure.phonependant.model.Status
 import com.findingtreasure.phonependant.ui.screens.AccelerometerInputScreen
 import com.findingtreasure.phonependant.ui.screens.CoordinateInputScreen
 import com.findingtreasure.phonependant.ui.screens.SettingsScreen
@@ -57,6 +59,8 @@ fun MainAppNavigation() {
 
 	val positions = remember { mutableStateListOf<Position>() }
 
+	val robotStatus = _currentPostion.collectAsState().value
+
 
 	AnimatedNavHost(
 		navController = navController,
@@ -84,16 +88,18 @@ fun MainAppNavigation() {
 					navController.navigate("jointRotation/${position.id}")
 				},
 				onAddNewPosition = {
-					/* TO IMPLEMENT: should copy current position of robot */
 					val newPosition = Position(
 						id = positions.size + 1,
 						name = "Position ${positions.size + 1}",
-						x = 0.0,
-						y = 0.0,
-						z = 0.0,
-						j1 = 0.0,
-						j2 = 0.0,
-						j3 = 0.0
+						status = Status(
+							x = robotStatus.x,
+							y = robotStatus.y,
+							z = robotStatus.z,
+							j1 = robotStatus.j1,
+							j2 = robotStatus.j2,
+							j3 = robotStatus.j3,
+							j4 = robotStatus.j4
+						)
 					)
 					positions.add(newPosition)
 					navController.navigate("jointRotation/${newPosition.id}")
@@ -104,8 +110,6 @@ fun MainAppNavigation() {
 						popUpTo("connection") { inclusive = true }
 					}
 				},
-
-				onTrackPath = {},
 				onSettings = { navController.navigate("settings") }
 			)
 		}

@@ -122,9 +122,15 @@ fun SliderSnapRelease(
         }
 
         // Show Text only if the user is interacting with the slider
-        Box(modifier = Modifier.height(24.dp)) { // Fixed size for the Text
+        Box(
+            modifier = Modifier
+                .height(24.dp)
+                .align(Alignment.CenterHorizontally)
+
+        ) { // Fixed size for the Text
             if (isTouching.value) {
-                Text("${sliderPosition.value.toInt()}", Modifier.align(Alignment.Center))
+                Text("${sliderPosition.value.toInt()}",
+                    style = MaterialTheme.typography.labelSmall.copy(color = MaterialTheme.colorScheme.onBackground))
             }
         }
     }
