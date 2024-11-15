@@ -1,30 +1,29 @@
-package com.findingtreasure.phonependant.ui.helper
+package com.findingtreasure.phonependant.ui.components
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import com.findingtreasure.phonependant.SliderSnapRelease
 
 @Composable
-fun DisplayField(label: String, value: String) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Center
+fun AxisSlider(label: String, sliderValue: MutableState<Float>, onValueChange: (Float) -> Unit) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.padding(8.dp)
     ) {
-        // Circular label for X, Y, Z
         Box(
             modifier = Modifier
                 .size(32.dp)
@@ -39,16 +38,8 @@ fun DisplayField(label: String, value: String) {
             )
         }
 
-        Spacer(modifier = Modifier.width(8.dp))
+        Spacer(modifier = Modifier.height(32.dp))
 
-        // Display coordinate value
-        Text(
-            text = value,
-            style = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onBackground),
-            fontSize = 15.sp,
-            modifier = Modifier
-                    .width(128.dp)
-                .padding(vertical = 8.dp)
-        )
+        SliderSnapRelease(sliderValue, -100f..100f, 0f)
     }
 }
