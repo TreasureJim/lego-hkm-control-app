@@ -7,14 +7,7 @@
 #include <string.h>
 #include <unistd.h>
 
-enum S_ID {
-  S_ID_MOTIONID = 0,
-  S_ID_MOVEJOG,
-  S_ID_ROBOTREQUESTSTATUS,
-  S_ID_ROBOTSTATUS,
-  S_ID_MOVELINEAR,
-  S_ID_MOVEPOS
-};
+enum S_ID { S_ID_MOTIONID = 0, S_ID_MOVEJOG, S_ID_ROBOTREQUESTSTATUS, S_ID_ROBOTSTATUS, S_ID_MOVELINEAR, S_ID_MOVEPOS };
 
 void send_message(int sockfd, uint8_t* buffer, size_t length) {
   if (send(sockfd, buffer, length, 0) != length) {
@@ -36,9 +29,11 @@ int app_decode(int app_fd) {
 	char sig_id;
 	recv(app_fd, &sig_id, 1, 0);
 
+	char* buf;
+
 	switch (sig_id) {
 	case S_ID_MOVEJOG:
-	  char* buf = malloc(sizeof(struct movejog));
+	  buf = malloc(sizeof(struct movejog));
 	  if (receive_message(app_fd, buf, sizeof(struct movejog)) < 0) {
 		return -1;
 	  }
@@ -53,27 +48,27 @@ int app_decode(int app_fd) {
 	  robot_send_robotrequeststatus((struct robotrequeststatus*)&rqs);
 	  break;
 
-    case S_ID_MOVELINEAR:
-        char* buf = malloc(sizeof(struct movelinear));
-        if (receive_message(app_fd, buf, sizeof(struct movelinear)) < 0) {
-            return -1;
-        }
+	case S_ID_MOVELINEAR:
+	  buf = malloc(sizeof(struct movelinear));
+	  if (receive_message(app_fd, buf, sizeof(struct movelinear)) < 0) {
+		return -1;
+	  }
 
-        robot_send_movelinear((struct movelinear*)buf);
+	  robot_send_movelinear((struct movelinear*)buf);
 
-        free(buf);
-        break;
+	  free(buf);
+	  break;
 
-    case S_ID_MOVEPOS:
-        char* buf = malloc(sizeof(struct movepos));
-        if (receive_message(app_fd, buf, sizeof(struct movepos)) < 0) {
-            return -1;
-        }
+	case S_ID_MOVEPOS:
+	  buf = malloc(sizeof(struct movepos));
+	  if (receive_message(app_fd, buf, sizeof(struct movepos)) < 0) {
+		return -1;
+	  }
 
-        robot_send_movepos((struct movepos*)buf);
+	  robot_send_movepos((struct movepos*)buf);
 
-        free(buf);
-        break;
+	  free(buf);
+	  break;
 
 	default:
 	  fprintf(stderr, "[APP ERROR] Decoded an unknown sig_id: %d\n", sig_id);

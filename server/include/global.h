@@ -8,6 +8,8 @@ extern int app_server_fd, app_client_fd;
 void robot_decode(int robot_socket);
 void robot_send_movejog(struct movejog* m);
 void robot_send_robotrequeststatus(struct robotrequeststatus* m);
+void robot_send_movelinear(struct movelinear* m);
+void robot_send_movepos(struct movepos* m);
 
 int app_decode(int app_fd);
 void app_send_motionid(struct motionid* m);

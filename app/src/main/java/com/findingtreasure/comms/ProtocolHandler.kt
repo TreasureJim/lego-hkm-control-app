@@ -11,11 +11,12 @@ import kotlinx.coroutines.flow.SharedFlow
 
 enum class SIG_ID_STRUCTS(val id: Int, val size: Int) {
     MotionId(0, 17),
-    RobotStatus(3, 56),
-    MoveJog(1, 73),
+    MoveJog(1, 72),
     RobotRequestStatus(2, 1),
-    MoveLinear(4, 73),
-    MovePos(5, 73)
+    RobotStatus(3, 56),
+    MoveLinear(4, 72),
+    MovePos(5, 72),
+    RobTarget(-1, 56)
 }
 
 object ProtocolHandler {
@@ -79,8 +80,8 @@ object ProtocolHandler {
     // ENCODE
 
     fun encodeMoveJog(moveJog: MoveJog): ByteArray {
-        val buffer = ByteBuffer.allocate(73).order(ByteOrder.LITTLE_ENDIAN)
-        buffer.put(0x01) // s_id for MoveJog
+        val buffer = ByteBuffer.allocate(SIG_ID_STRUCTS.MoveJog.size + 1).order(ByteOrder.LITTLE_ENDIAN)
+        buffer.put(SIG_ID_STRUCTS.MoveJog.id.toByte()) // s_id for MoveJog
         buffer.put(moveJog.motionId.copyOf(16)) // Ensure motionId is exactly 16 bytes
         buffer.putDouble(moveJog.x)
         buffer.putDouble(moveJog.y)
@@ -97,8 +98,8 @@ object ProtocolHandler {
     }
 
     fun encodeMoveLinear(moveLinear: MoveLinear) : ByteArray {
-        val buffer = ByteBuffer.allocate(73).order(ByteOrder.LITTLE_ENDIAN)
-        buffer.put(0x04) // s_id for MoveJog
+        val buffer = ByteBuffer.allocate(SIG_ID_STRUCTS.MoveLinear.size + 1).order(ByteOrder.LITTLE_ENDIAN)
+        buffer.put(SIG_ID_STRUCTS.MoveLinear.id.toByte())
         buffer.put(moveLinear.motionId.copyOf(16)) // Ensure motionId is exactly 16 bytes
         buffer.put(
             encodeRobTarget(moveLinear.target)
@@ -107,8 +108,8 @@ object ProtocolHandler {
     }
 
     fun encodeMovePos(movePos: MovePos) : ByteArray {
-        val buffer = ByteBuffer.allocate(73).order(ByteOrder.LITTLE_ENDIAN)
-        buffer.put(0x04) // s_id for MoveJog
+        val buffer = ByteBuffer.allocate(SIG_ID_STRUCTS.MovePos.size + 1).order(ByteOrder.LITTLE_ENDIAN)
+        buffer.put(SIG_ID_STRUCTS.MovePos.id.toByte())
         buffer.put(movePos.motionId.copyOf(16)) // Ensure motionId is exactly 16 bytes
         buffer.put(
             encodeRobTarget(movePos.target)
@@ -117,7 +118,7 @@ object ProtocolHandler {
     }
 
     private fun encodeRobTarget(robTarget: RobTarget) : ByteArray {
-        val buffer = ByteBuffer.allocate(73).order(ByteOrder.LITTLE_ENDIAN)
+        val buffer = ByteBuffer.allocate(SIG_ID_STRUCTS.RobTarget.size).order(ByteOrder.LITTLE_ENDIAN)
         buffer.putDouble(robTarget.x)
         buffer.putDouble(robTarget.y)
         buffer.putDouble(robTarget.z)
