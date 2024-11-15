@@ -63,14 +63,14 @@ class Accelerometer(private val context: Context) : SensorEventListener {
         // You can handle sensor accuracy changes here if needed
     }
 
-    // Normalizing accelerometer data to align with the coordinate system
+    // Normalizing accelerometer data to align with the coordinate system (normalized between -100 and 100)
     private fun normalizeAccelerometerData(x: Float, y: Float, z: Float) {
         val magnitude = sqrt(x * x + y * y + z * z)
 
         if (magnitude > 0) {
-            linearAcceleration[0] = x / magnitude  // X-axis (left-right)
-            linearAcceleration[1] = y / magnitude  // Y-axis (front-back)
-            linearAcceleration[2] = z / magnitude  // Z-axis (up-down)
+            linearAcceleration[0] = (x / magnitude) * 100  // X-axis (left-right)
+            linearAcceleration[1] = (y / magnitude) * 100  // Y-axis (front-back)
+            linearAcceleration[2] = (z / magnitude) * 100  // Z-axis (up-down)
         }
     }
 }

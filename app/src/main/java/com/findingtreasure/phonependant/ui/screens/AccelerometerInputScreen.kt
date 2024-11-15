@@ -13,17 +13,56 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.findingtreasure.phonependant._currentPostion
 import com.findingtreasure.phonependant.model.Position
+import com.findingtreasure.phonependant.model.Status
+import com.findingtreasure.phonependant.sensor.Accelerometer
+import com.findingtreasure.phonependant.ui.components.DisplayField
+import com.findingtreasure.phonependant.viewmodel.JoggingViewModel
+import com.findingtreasure.phonependant.viewmodel.JoggingViewModelFactory
+import com.findingtreasure.phonependant.viewmodel.SettingsViewModel
 
 @Composable
 fun AccelerometerInputScreen(
     position: Position?,
     onTabSelected: (String, Position) -> Unit,
-    onSave: (Position) -> Unit
+    onSave: (Position) -> Unit,
+    settings: SettingsViewModel
 ) {
-    var positionState by remember { mutableStateOf(position) }
+    // Initialize Accelerometer
+    val context = LocalContext.current
+    val accelerometer = remember { Accelerometer(context) }
+
+    // Pass position and ProtocolHandler to the factory
+    val viewModel: JoggingViewModel = viewModel(
+        factory = JoggingViewModelFactory (
+            initialPosition = position ?: Position(0, "", Status(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)),
+            settings = settings,
+        )
+    )
+
+    val positionState = viewModel.positionState
+    val robotStatus by _currentPostion.collectAsState()
+    var isTracking by remember { mutableStateOf(false) }
+
+    // Callback to handle accelerometer data
+    LaunchedEffect(isTracking) {
+        if (isTracking) {
+            accelerometer.onAccelerometerDataChanged = { data ->
+                // Update ViewModel sliders based on accelerometer data
+                viewModel.setSliderValue("X", data[0])
+                viewModel.setSliderValue("Y", data[1])
+                viewModel.setSliderValue("Z", data[2])
+            }
+            accelerometer.startListening()
+        } else {
+            accelerometer.stopListening()
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -37,10 +76,16 @@ fun AccelerometerInputScreen(
             contentColor = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Tab(selected = false, onClick = { onTabSelected("jointRotation/${position?.id}", position!!.copy(name = positionState?.name ?: ""))  }) {
+            Tab(selected = false, onClick = {
+                viewModel.updatePosition(robotStatus)
+                onTabSelected("jointRotation/${positionState.value.id}", positionState.value)
+            }) {
                 Text("Joint", modifier = Modifier.padding(16.dp), style = MaterialTheme.typography.labelSmall)
             }
-            Tab(selected = false, onClick = { onTabSelected("coordinateInput/${position?.id}", position!!.copy(name = positionState?.name ?: "")) }) {
+            Tab(selected = false, onClick = {
+                viewModel.updatePosition(robotStatus)
+                onTabSelected("coordinateInput/${positionState.value.id}", positionState.value)
+            }) {
                 Text("Coordinate", modifier = Modifier.padding(16.dp), style = MaterialTheme.typography.labelSmall)
             }
             Tab(selected = true, onClick = { /* Stay on Accelerometer screen */ }) {
@@ -73,47 +118,24 @@ fun AccelerometerInputScreen(
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                CoordinateDisplayFields(
-                    label = "X",
-                    value = positionState?.status?.x.toString()
-                )
-                CoordinateDisplayFields(
-                    label = "Y",
-                    value = positionState?.status?.y.toString()
-                )
-                CoordinateDisplayFields(
-                    label = "Z",
-                    value = positionState?.status?.z.toString()
-                )
-                CoordinateDisplayFields(
-                    label = "J1",
-                    value = positionState?.status?.j1.toString()
-                )
-                CoordinateDisplayFields(
-                    label = "J2",
-                    value = positionState?.status?.j2.toString()
-                )
-                CoordinateDisplayFields(
-                    label = "J3",
-                    value = positionState?.status?.j3.toString()
-                )
+                DisplayField("J1", robotStatus.j1)
+                DisplayField("J2", robotStatus.j2)
+                DisplayField("J3", robotStatus.j3)
+                DisplayField("X", robotStatus.x)
+                DisplayField("Y", robotStatus.y)
+                DisplayField("Z", robotStatus.z)
             }
 
             Spacer(modifier = Modifier.height(50.dp))
 
             Button(
-                onClick = { /* Handle save button click */ },
-                shape = RoundedCornerShape(
-                    topStart = 16.dp,
-                    topEnd = 16.dp,
-                    bottomStart = 16.dp,
-                    bottomEnd = 16.dp
-                ),
+                onClick = { isTracking = !isTracking },
+                shape = RoundedCornerShape(16.dp),
                 modifier = Modifier
                     .width(200.dp)
                     .height(60.dp)
             ) {
-                Text("Track", style = MaterialTheme.typography.titleSmall)
+                Text(if (isTracking) "Stop" else "Track", style = MaterialTheme.typography.titleSmall)
             }
 
             Spacer(modifier = Modifier.weight(1f))  // Spacer to push content upwards
@@ -128,9 +150,9 @@ fun AccelerometerInputScreen(
             ) {
                 // Transparent TextField with custom underline
                 BasicTextField(
-                    value = positionState?.name ?: "",
+                    value = positionState.value.name,
                     onValueChange = { newName ->
-                        positionState = positionState!!.copy(name = newName)
+                        viewModel.setName(newName)
                     },
                     textStyle = MaterialTheme.typography.bodyLarge.copy(color = Color.White),
                     modifier = Modifier
@@ -159,7 +181,10 @@ fun AccelerometerInputScreen(
 
                 // Edit Icon Button
                 IconButton(
-                    onClick = { onSave(positionState!!) },
+                    onClick = {
+                        viewModel.updatePosition(robotStatus)
+                        onSave(positionState.value)
+                              },
                     modifier = Modifier.size(48.dp)
                 ) {
                     Icon(
@@ -170,39 +195,5 @@ fun AccelerometerInputScreen(
                 }
             }
         }
-    }
-}
-
-@Composable
-fun CoordinateDisplayFields(label: String, value: String) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Center
-    ) {
-        // Circular label for X, Y, Z
-        Box(
-            modifier = Modifier
-                .size(32.dp)
-                .background(MaterialTheme.colorScheme.primary, CircleShape),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = label,
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onPrimary,
-                textAlign = TextAlign.Center
-            )
-        }
-
-        Spacer(modifier = Modifier.width(8.dp))
-
-        // Display coordinate value
-        Text(
-            text = value,
-            style = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onBackground),
-            modifier = Modifier
-                .width(196.dp)
-                .padding(vertical = 8.dp)
-        )
     }
 }

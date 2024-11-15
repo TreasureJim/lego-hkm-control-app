@@ -1,106 +1,222 @@
 package com.findingtreasure.phonependant
 
-import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Column
-import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.platform.LocalContext
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
 import com.findingtreasure.phonependant.datastore.ConnectionDataStore
 import com.findingtreasure.phonependant.model.Position
-import com.findingtreasure.phonependant.sensor.Accelerometer
 import com.findingtreasure.phonependant.ui.screens.ConnectionScreen
+import com.findingtreasure.phonependant.ui.screens.JointRotationScreen
 import com.findingtreasure.phonependant.ui.screens.PositionListScreen
 import com.findingtreasure.phonependant.ui.theme.PhonePendantTheme
 import com.findingtreasure.phonependant.viewmodel.ConnectionViewModel
+import kotlinx.coroutines.launch
+import com.google.accompanist.navigation.animation.rememberAnimatedNavController
+import com.google.accompanist.navigation.animation.AnimatedNavHost
+import com.google.accompanist.navigation.animation.composable
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.runtime.collectAsState
+import com.findingtreasure.phonependant.datastore.SettingsDataStore
+import com.findingtreasure.phonependant.model.Status
+import com.findingtreasure.phonependant.ui.screens.AccelerometerInputScreen
+import com.findingtreasure.phonependant.ui.screens.CoordinateInputScreen
+import com.findingtreasure.phonependant.ui.screens.SettingsScreen
+import com.findingtreasure.phonependant.viewmodel.SettingsViewModel
 
 class MainActivity : ComponentActivity() {
-	private lateinit var dataStore: ConnectionDataStore
-
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
-		dataStore = ConnectionDataStore(applicationContext)
-
 		setContent {
 			PhonePendantTheme {
-				AccelerometerTesting(this)
-				//AppContent()
+				MainAppNavigation()
 			}
 		}
 	}
+}
 
-	@Composable
-	fun AppContent() {
-		var currentScreen by remember { mutableStateOf("connection") }
-		val viewModel = remember { ConnectionViewModel(dataStore) }
-		val positions = remember { mutableStateListOf<Position>() }
+@OptIn(ExperimentalAnimationApi::class)
+@Composable
+fun MainAppNavigation() {
+	val navController = rememberAnimatedNavController()
+	val context = LocalContext.current
+	val scope = rememberCoroutineScope()
 
-		if (currentScreen == "connection") {
+	val connectionDataStore = remember { ConnectionDataStore(context) }
+	val connectionViewModel = remember { ConnectionViewModel(connectionDataStore) }
+
+	val settingsDataStore = remember { SettingsDataStore(context) }
+	val settingsViewModel = remember { SettingsViewModel(settingsDataStore) }
+
+	val positions = remember { mutableStateListOf<Position>() }
+
+	val robotStatus = _currentPostion.collectAsState().value
+
+
+	AnimatedNavHost(
+		navController = navController,
+		startDestination = "connection",
+		enterTransition = { fadeIn(animationSpec = tween(0)) },    // No animation on enter
+		exitTransition = { fadeOut(animationSpec = tween(0)) },    // No animation on exit
+		popEnterTransition = { fadeIn(animationSpec = tween(0)) }, // No animation on pop enter
+		popExitTransition = { fadeOut(animationSpec = tween(0)) }  // No animation on pop exit
+	) {
+		// Connection Screen
+		composable("connection") {
 			ConnectionScreen(
-				viewModel = viewModel,
+				viewModel = connectionViewModel,
 				onConnect = {
-					currentScreen = "positionList"
+					navController.navigate("positionList")
 				}
 			)
-		} else if (currentScreen == "positionList") {
+		}
+
+		// Position List Screen
+		composable("positionList") {
 			PositionListScreen(
 				positionList = positions,
-				onEditPosition = { /* Handle edit */ },
+				onEditPosition = { position ->
+					navController.navigate("jointRotation/${position.id}")
+				},
 				onAddNewPosition = {
-					positions.add(
-						Position(
-							id = positions.size + 1,
-							name = "Position ${positions.size + 1}",
-							x = "12345678",
-							y = "12345678",
-							z = "12345678",
-							axis1 = "12345678",
-							axis2 = "12345678",
-							axis3 = "12345678"
+					val newPosition = Position(
+						id = positions.size + 1,
+						name = "Position ${positions.size + 1}",
+						status = Status(
+							x = robotStatus.x,
+							y = robotStatus.y,
+							z = robotStatus.z,
+							j1 = robotStatus.j1,
+							j2 = robotStatus.j2,
+							j3 = robotStatus.j3,
+							j4 = robotStatus.j4
 						)
 					)
+					positions.add(newPosition)
+					navController.navigate("jointRotation/${newPosition.id}")
 				},
 				onLogout = {
-					viewModel.logout()
-					currentScreen = "connection"
-				}
+					scope.launch { connectionViewModel.logout() }
+					navController.navigate("connection") {
+						popUpTo("connection") { inclusive = true }
+					}
+				},
+				onSettings = { navController.navigate("settings") }
 			)
 		}
-	}
 
-	@Composable
-	fun AccelerometerTesting(context: Context) {
-		// Create a state to hold accelerometer values
-		var xValue by remember { mutableFloatStateOf(0f) }
-		var yValue by remember { mutableFloatStateOf(0f) }
-		var zValue by remember { mutableFloatStateOf(0f) }
-
-		// Create an instance of the accelerometer
-		val accelerometer = remember { Accelerometer(context) }
-
-		// Use LaunchedEffect to start and stop listening to accelerometer values
-		DisposableEffect(Unit) {
-			accelerometer.startListening()
-
-			// Set the callback for the accelerometer data
-			accelerometer.onAccelerometerDataChanged = { values ->
-				xValue = values[0]
-				yValue = values[1]
-				zValue = values[2]
-			}
-
-			// Cleanup on exit
-			onDispose {
-				accelerometer.stopListening()
-			}
+		// Add new composable for settings
+		composable("settings") {
+			SettingsScreen(
+				viewModel = settingsViewModel,
+				onBack = { navController.popBackStack() }
+			)
 		}
 
-		// Display accelerometer values on the screen
-		Column {
-			Text(text = "X-axis: $xValue")
-			Text(text = "Y-axis: $yValue")
-			Text(text = "Z-axis: $zValue")
+
+		// Joint Rotation Screen
+		composable(
+			route = "jointRotation/{positionId}",
+			arguments = listOf(
+				navArgument("positionId") { type = NavType.IntType }
+			)
+		) { backStackEntry ->
+			val positionId = backStackEntry.arguments?.getInt("positionId") ?: 0
+
+			JointRotationScreen(
+				position = positions.find { it.id == positionId },
+				onSave = { updatedPosition ->
+					val index = positions.indexOfFirst { it.id == updatedPosition.id }
+					if (index != -1) {
+						positions[index] = updatedPosition
+					}
+					navController.popBackStack()
+				},
+				onTabSelected = { screen, updatedPosition ->
+					// Update the position in the list
+					val index = positions.indexOfFirst { it.id == updatedPosition.id }
+					if (index != -1) {
+						positions[index] = updatedPosition
+					}
+					navController.navigate(screen) {
+						popUpTo("jointRotation/$positionId") { inclusive = true }
+					}
+				},
+				settings = settingsViewModel
+			)
+		}
+
+		// Coordinate Input Screen
+		composable(
+			route = "coordinateInput/{positionId}",
+			arguments = listOf(
+				navArgument("positionId") { type = NavType.IntType }
+			)
+		) { backStackEntry ->
+			val positionId = backStackEntry.arguments?.getInt("positionId") ?: 0
+
+			CoordinateInputScreen (
+				position = positions.find { it.id == positionId },
+				onSave = { updatedPosition ->
+					val index = positions.indexOfFirst { it.id == updatedPosition.id }
+					if (index != -1) {
+						positions[index] = updatedPosition
+					}
+					navController.popBackStack()
+				},
+				onTabSelected = { screen, updatedPosition ->
+					// Update the position in the list
+					val index = positions.indexOfFirst { it.id == updatedPosition.id }
+					if (index != -1) {
+						positions[index] = updatedPosition
+					}
+					navController.navigate(screen) {
+						popUpTo("coordinateInput/$positionId") { inclusive = true }
+					}
+				},
+				settings = settingsViewModel
+			)
+		}
+
+		// Accelerometer Input Screen
+		composable(
+			route = "accelerometerInput/{positionId}",
+			arguments = listOf(
+				navArgument("positionId") { type = NavType.IntType }
+			)
+		) { backStackEntry ->
+			val positionId = backStackEntry.arguments?.getInt("positionId") ?: 0
+
+			AccelerometerInputScreen (
+				position = positions.find { it.id == positionId },
+				onSave = { updatedPosition ->
+					val index = positions.indexOfFirst { it.id == updatedPosition.id }
+					if (index != -1) {
+						positions[index] = updatedPosition
+					}
+					navController.popBackStack()
+				},
+				onTabSelected = { screen, updatedPosition ->
+					// Update the position in the list
+					val index = positions.indexOfFirst { it.id == updatedPosition.id }
+					if (index != -1) {
+						positions[index] = updatedPosition
+					}
+					navController.navigate(screen) {
+						popUpTo("accelerometerInput/$positionId") { inclusive = true }
+					}
+				},
+				settings = settingsViewModel
+			)
 		}
 	}
 }
