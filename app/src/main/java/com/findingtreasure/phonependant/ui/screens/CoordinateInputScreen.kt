@@ -17,8 +17,7 @@ import com.findingtreasure.phonependant._currentPostion
 import com.findingtreasure.phonependant.model.Position
 import com.findingtreasure.phonependant.model.Status
 import com.findingtreasure.phonependant.ui.components.RobotStatusDisplay
-import com.findingtreasure.phonependant.ui.helper.AxisSlider
-import com.findingtreasure.phonependant.ui.helper.DisplayField
+import com.findingtreasure.phonependant.ui.components.AxisSlider
 import com.findingtreasure.phonependant.viewmodel.JoggingViewModel
 import com.findingtreasure.phonependant.viewmodel.JoggingViewModelFactory
 import com.findingtreasure.phonependant.viewmodel.SettingsViewModel
