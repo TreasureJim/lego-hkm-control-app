@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.findingtreasure.phonependant._currentPostion
 import com.findingtreasure.phonependant.model.Position
+import com.findingtreasure.phonependant.model.Status
 import com.findingtreasure.phonependant.ui.components.RobotStatusDisplay
 import com.findingtreasure.phonependant.ui.helper.AxisSlider
 import com.findingtreasure.phonependant.ui.helper.DisplayField
@@ -32,15 +33,16 @@ fun CoordinateInputScreen(
     // Pass position and ProtocolHandler to the factory
     val viewModel: JoggingViewModel = viewModel(
         factory = JoggingViewModelFactory (
-            initialPosition = position ?: Position(0, "", 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
+            initialPosition = position ?: Position(0, "", Status(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)),
             settings = settings
         )
     )
 
-    val positionState by _currentPostion.collectAsState()
+    val positionState = viewModel.positionState
     val sliderXValue = viewModel.sliderXValue
     val sliderYValue = viewModel.sliderYValue
     val sliderZValue = viewModel.sliderZValue
+    val robotStatus by _currentPostion.collectAsState()
 
     Column(
         modifier = Modifier
@@ -54,13 +56,19 @@ fun CoordinateInputScreen(
             contentColor = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Tab(selected = false, onClick = { onTabSelected("jointRotation/${positionState.id}", positionState) }) {
+            Tab(selected = false, onClick = {
+                viewModel.updatePosition(robotStatus)
+                onTabSelected("jointRotation/${positionState.value.id}", positionState.value)
+            }) {
                 Text("Joint", modifier = Modifier.padding(16.dp), style = MaterialTheme.typography.labelSmall)
             }
             Tab(selected = true, onClick = { /* Stay on Coordinate screen */ }) {
                 Text("Coordinate", modifier = Modifier.padding(16.dp), style = MaterialTheme.typography.labelSmall)
             }
-            Tab(selected = false, onClick = { onTabSelected("accelerometerInput/${positionState.id}", positionState) }) {
+            Tab(selected = false, onClick = {
+                viewModel.updatePosition(robotStatus)
+                onTabSelected("accelerometerInput/${positionState.value.id}", positionState.value)
+            }) {
                 Text("Accelerometer", modifier = Modifier.padding(16.dp), style = MaterialTheme.typography.labelSmall)
             }
         }
@@ -110,39 +118,42 @@ fun CoordinateInputScreen(
                 horizontalArrangement = Arrangement.Center
             ) {
                 // Transparent TextField with custom underline
-//                BasicTextField(
-//                    value = positionState.name,
-//                    onValueChange = { newName ->
-//                        _currentPostion.value.name = newName
-//                    },
-//                    textStyle = MaterialTheme.typography.bodyLarge.copy(color = Color.White),
-//                    modifier = Modifier
-//                        .weight(1f)
-//                        .background(Color.Transparent)
-//                        .padding(vertical = 8.dp),
-//                    cursorBrush = SolidColor(MaterialTheme.colorScheme.surface),
-//                    decorationBox = { innerTextField ->
-//                        Column {
-//                            innerTextField()
-//
-//                            Spacer(modifier = Modifier.height(4.dp))
-//
-//                            // Custom underline
-//                            Box(
-//                                modifier = Modifier
-//                                    .fillMaxWidth()
-//                                    .height(2.dp)
-//                                    .background(MaterialTheme.colorScheme.surface)
-//                            )
-//                        }
-//                    }
-//                )
+                BasicTextField(
+                    value = positionState.value.name,
+                    onValueChange = { newName ->
+                        viewModel.setName(newName)
+                    },
+                    textStyle = MaterialTheme.typography.bodyLarge.copy(color = Color.White),
+                    modifier = Modifier
+                        .weight(1f)
+                        .background(Color.Transparent)
+                        .padding(vertical = 8.dp),
+                    cursorBrush = SolidColor(MaterialTheme.colorScheme.surface),
+                    decorationBox = { innerTextField ->
+                        Column {
+                            innerTextField()
+
+                            Spacer(modifier = Modifier.height(4.dp))
+
+                            // Custom underline
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(2.dp)
+                                    .background(MaterialTheme.colorScheme.surface)
+                            )
+                        }
+                    }
+                )
 
                 Spacer(modifier = Modifier.width(8.dp))
 
                 // Edit Icon Button
                 IconButton(
-                    onClick = { onSave(positionState) },
+                    onClick = {
+                        viewModel.updatePosition(robotStatus)
+                        onSave(positionState.value)
+                              },
                     modifier = Modifier.size(48.dp)
                 ) {
                     Icon(

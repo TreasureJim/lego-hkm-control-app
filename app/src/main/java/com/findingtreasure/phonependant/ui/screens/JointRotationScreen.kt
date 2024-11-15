@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.findingtreasure.phonependant._currentPostion
 import com.findingtreasure.phonependant.model.Position
+import com.findingtreasure.phonependant.model.Status
 import com.findingtreasure.phonependant.ui.components.RobotStatusDisplay
 import com.findingtreasure.phonependant.ui.helper.DisplayField
 import com.findingtreasure.phonependant.ui.helper.AxisSlider
@@ -32,15 +33,16 @@ fun JointRotationScreen(
     // Pass position and ProtocolHandler to the factory
     val viewModel: JoggingViewModel = viewModel(
         factory = JoggingViewModelFactory (
-            initialPosition = position ?: Position(0, "", 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
+            initialPosition = position ?: Position(0, "", Status(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)),
             settings = settings,
         )
     )
 
-    val positionState by _currentPostion.collectAsState()
+    val positionState = viewModel.positionState
     val slider1Value = viewModel.slider1Value
     val slider2Value = viewModel.slider2Value
     val slider3Value = viewModel.slider3Value
+    val robotStatus by _currentPostion.collectAsState()
 
     // Main container
     Column(
@@ -58,10 +60,16 @@ fun JointRotationScreen(
             Tab(selected = true, onClick = { /* Stay on Joint screen */ }) {
                 Text("Joint", modifier = Modifier.padding(16.dp), style = MaterialTheme.typography.labelSmall)
             }
-            Tab(selected = false, onClick = { onTabSelected("coordinateInput/${positionState.id}", positionState)}) {
+            Tab(selected = false, onClick = {
+                viewModel.updatePosition(robotStatus)
+                onTabSelected("coordinateInput/${positionState.value.id}", positionState.value)
+            }) {
                 Text("Coordinate", modifier = Modifier.padding(16.dp), style = MaterialTheme.typography.labelSmall)
             }
-            Tab(selected = false, onClick = { onTabSelected("accelerometerInput/${positionState.id}", positionState) }) {
+            Tab(selected = false, onClick = {
+                viewModel.updatePosition(robotStatus)
+                onTabSelected("accelerometerInput/${positionState.value.id}", positionState.value)
+            }) {
                 Text("Accelerometer", modifier = Modifier.padding(16.dp), style = MaterialTheme.typography.labelSmall)
             }
         }
@@ -92,13 +100,13 @@ fun JointRotationScreen(
                     .fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                AxisSlider(label = "1", sliderValue = slider1Value, onValueChange = { viewModel.setSliderValue("1", it) })
-                AxisSlider(label = "2", sliderValue = slider2Value, onValueChange = { viewModel.setSliderValue("2", it) })
-                AxisSlider(label = "3", sliderValue = slider3Value, onValueChange = { viewModel.setSliderValue("3", it) })
+                AxisSlider(label = "J1", sliderValue = slider1Value, onValueChange = { viewModel.setSliderValue("1", it) })
+                AxisSlider(label = "J2", sliderValue = slider2Value, onValueChange = { viewModel.setSliderValue("2", it) })
+                AxisSlider(label = "J3", sliderValue = slider3Value, onValueChange = { viewModel.setSliderValue("3", it) })
             }
 
             // DisplayFields for Joint Values and Coordinates in Two Columns
-            RobotStatusDisplay(_currentPostion.collectAsState().value)
+            RobotStatusDisplay(robotStatus)
 
             Spacer(modifier = Modifier.weight(1f))  // Spacer to push content upwards
 
@@ -112,9 +120,9 @@ fun JointRotationScreen(
             ) {
                 // Transparent TextField with custom underline
                 BasicTextField(
-                    value = positionState.name,
+                    value = positionState.value.name,
                     onValueChange = { newName ->
-//                        viewModel.setName(newName)
+                        viewModel.setName(newName)
                     },
                     textStyle = MaterialTheme.typography.bodyLarge.copy(color = Color.White),
                     modifier = Modifier
@@ -143,7 +151,10 @@ fun JointRotationScreen(
 
                 // Edit Icon Button
                 IconButton(
-                    onClick = { onSave(positionState) },
+                    onClick = {
+                        viewModel.updatePosition(robotStatus)
+                        onSave(positionState.value)
+                              },
                     modifier = Modifier.size(48.dp)
                 ) {
                     Icon(

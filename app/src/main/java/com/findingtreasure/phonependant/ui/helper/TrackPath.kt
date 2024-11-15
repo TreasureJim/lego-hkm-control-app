@@ -18,9 +18,9 @@ suspend fun TrackPath(positionList: List<Position>) {
             val moveLinear = MoveLinear(
                 motionId = ProtocolHandler.generateMotionId(),
                 target = RobTarget(
-                    x = position.x,
-                    y = position.y,
-                    z = position.z,
+                    x = position.status.x,
+                    y = position.status.y,
+                    z = position.status.z,
                     j4 = 0.0,
                     a = 0.0,
                     b = 0.0,
