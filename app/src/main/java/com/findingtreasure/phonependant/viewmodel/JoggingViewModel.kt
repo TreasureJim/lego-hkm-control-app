@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.findingtreasure.comms.MoveJog
 import com.findingtreasure.comms.MoveLinear
+import com.findingtreasure.comms.MovePos
 import com.findingtreasure.comms.NetworkManager
 import com.findingtreasure.comms.ProtocolHandler
 import com.findingtreasure.comms.RobotStatus
@@ -30,23 +31,22 @@ class JoggingViewModel(
     val sliderZValue = mutableFloatStateOf(0f)
 
     init {
-        // TODO
-//        NetworkManager.sendData(
-//            ProtocolHandler.encodeMoveLinear(
-//                MoveLinear(
-//                    motionId = ProtocolHandler.generateMotionId(),
-//                    target = RobTarget(
-//                        x = initialPosition.x,
-//                        y = initialPosition.y,
-//                        z = initialPosition.z,
-//                        j4 = 0.0,
-//                        a = 0.0,
-//                        b = 0.0,
-//                        c = 0.0
-//                    )
-//                )
-//            )
-//        )
+        NetworkManager.sendData(
+            ProtocolHandler.encodeMovePos(
+                MovePos(
+                    motionId = ProtocolHandler.generateMotionId(),
+                    target = RobTarget(
+                        x = initialPosition.x,
+                        y = initialPosition.y,
+                        z = initialPosition.z,
+                        j4 = 0.0,
+                        a = 0.0,
+                        b = 0.0,
+                        c = 0.0
+                    )
+                )
+            )
+        )
         startUpdatingPosition(settings.commandSendHertz.value.toFloat(), settings.jointsensitivity.value, settings.coordsensitivity.value)
     }
 
