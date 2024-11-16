@@ -17,14 +17,24 @@ typedef struct {
 
 void* app_decode_thread(void* args) {
   ThreadArgs* thread_args = (ThreadArgs*)args;
+
   int result = app_decode(thread_args->app_fd);
+  if (app_client_fd >= 0) {
+	close(app_server_fd);
+  }
 
-  printf("app_decode returned: %d\n", result);
+  while(result <= 0) {
+    if ((app_client_fd = listen_server(app_server_fd)) < 0) {
+	  fprintf(stderr, "Failed to reconnect to app\n");
+	  break;
+    }
+    printf("Reconnected to app.\n");
 
-  // Free the allocated memory for arguments
+    result = app_decode(thread_args->app_fd);
+  }
+
+  // Thread cleanup
   free(thread_args);
-
-  // Return result as the thread's exit status
   return NULL;
 }
 
